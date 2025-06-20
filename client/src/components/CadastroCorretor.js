@@ -39,7 +39,12 @@ const CadastroCorretor = () => {
         <label>Senha
           <input type="password" name="senha" value={form.senha} onChange={handleChange} required />
         </label>
-        <button type="submit">Cadastrar</button>
+        <div className="form-buttons">
+          <button type="submit">Cadastrar</button>
+          <button type="button" className="secondary" onClick={() => alert('Consulta de corretores em breve!')}>
+            Consultar Corretores
+          </button>
+        </div>
       </form>
     </div>
   );

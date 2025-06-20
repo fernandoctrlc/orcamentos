@@ -46,6 +46,24 @@
   background: #115293;
 }
 
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-buttons button {
+  flex: 1;
+}
+
+.form-buttons .secondary {
+  background-color: #6c757d;
+}
+
+.form-buttons .secondary:hover {
+  background-color: #5a6268;
+}
+
 @media (max-width: 500px) {
   .cadastro-corretor-container {
     max-width: 95vw;
