@@ -94,7 +94,7 @@ const CadastroCorretor = () => {
         <div className="form-buttons">
           <button type="submit">Cadastrar</button>
           <button type="button" className="secondary" onClick={() => setMostrarLista(true)}>
-            Consultar Corretores
+            🔍 Consultar no Banco
           </button>
         </div>
       </form>
