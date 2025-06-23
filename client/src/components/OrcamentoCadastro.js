@@ -126,6 +126,8 @@ function OrcamentoCadastro() {
             };
           });
           // Chamar endpoint para gerar imagem
+          const vendedorNome = localStorage.getItem('corretorNome');
+          const vendedorTelefone = localStorage.getItem('corretorTelefone');
           const respPng = await fetch('/api/orcamento-png', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -133,7 +135,9 @@ function OrcamentoCadastro() {
               nome: formData.nome,
               telefone: formData.telefone,
               tabela: tabelaDescricao,
-              idadesValores
+              idadesValores,
+              vendedor_nome: vendedorNome,
+              vendedor_telefone: vendedorTelefone
             })
           });
           const resPng = await respPng.json();

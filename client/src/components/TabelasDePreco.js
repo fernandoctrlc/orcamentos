@@ -19,8 +19,10 @@ function TabelasDePreco() {
   const [cidades, setCidades] = useState([]);
   const [acomodacoes, setAcomodacoes] = useState([]);
   const [modalidades, setModalidades] = useState([]);
+  const [operadoras, setOperadoras] = useState([]);
   const [formData, setFormData] = useState({
     cidade_id: '',
+    operadora_id: '',
     tipo_coparticipacao: 'Com Coparticipação',
     acomodacao_id: '',
     modalidade_id: '',
@@ -46,6 +48,7 @@ function TabelasDePreco() {
     carregarCidades();
     carregarAcomodacoes();
     carregarModalidades();
+    carregarOperadoras();
   }, []);
 
   const carregarPrecos = async () => {
@@ -85,6 +88,13 @@ function TabelasDePreco() {
       if (response.ok) setModalidades(data.modalidades);
     } catch {}
   };
+  const carregarOperadoras = async () => {
+    try {
+      const response = await fetch('/api/operadoras');
+      const data = await response.json();
+      if (response.ok) setOperadoras(data.operadoras);
+    } catch {}
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -101,7 +111,7 @@ function TabelasDePreco() {
       if (response.ok) {
         setMessage(data.message);
         setFormData({
-          cidade_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
+          cidade_id: '', operadora_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
         });
         setEditingId(null);
         carregarPrecos();
@@ -117,6 +127,7 @@ function TabelasDePreco() {
   const handleEdit = (preco) => {
     setFormData({
       cidade_id: preco.cidade_id,
+      operadora_id: preco.operadora_id || '',
       tipo_coparticipacao: preco.tipo_coparticipacao,
       acomodacao_id: preco.acomodacao_id,
       modalidade_id: preco.modalidade_id,
@@ -157,7 +168,7 @@ function TabelasDePreco() {
 
   const handleCancel = () => {
     setFormData({
-      cidade_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
+      cidade_id: '', operadora_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
     });
     setEditingId(null);
     setMessage('');
@@ -183,6 +194,13 @@ function TabelasDePreco() {
               <select id="cidade_id" value={formData.cidade_id} onChange={e => setFormData({ ...formData, cidade_id: e.target.value })} required>
                 <option value="">Selecione</option>
                 {cidades.map(c => <option key={c.id} value={c.id}>{c.nome} - {c.estado}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="operadora_id">Operadora:</label>
+              <select id="operadora_id" value={formData.operadora_id} onChange={e => setFormData({ ...formData, operadora_id: e.target.value })} required>
+                <option value="">Selecione</option>
+                {operadoras.map(o => <option key={o.id} value={o.id}>{o.nome_completo}</option>)}
               </select>
             </div>
             <div className="form-group">

@@ -79,6 +79,7 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS precos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     cidade_id INTEGER NOT NULL,
+    operadora_id INTEGER NOT NULL,
     tipo_coparticipacao TEXT NOT NULL CHECK(tipo_coparticipacao IN ('Com Coparticipação', 'Coparticipação Parcial')),
     acomodacao_id INTEGER NOT NULL,
     modalidade_id INTEGER NOT NULL,
@@ -96,6 +97,7 @@ db.serialize(() => {
     valor_59_mais DECIMAL(10,2),
     dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (cidade_id) REFERENCES cidades(id),
+    FOREIGN KEY (operadora_id) REFERENCES operadoras(id),
     FOREIGN KEY (acomodacao_id) REFERENCES acomodacoes(id),
     FOREIGN KEY (modalidade_id) REFERENCES modalidades(id)
   )`);
@@ -607,23 +609,23 @@ app.delete('/api/operadoras/:id', (req, res) => {
 // Cadastrar preço
 app.post('/api/precos', (req, res) => {
   const {
-    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
     validade_inicio, validade_fim,
     valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38,
     valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
   } = req.body;
 
-  if (!cidade_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
+  if (!cidade_id || !operadora_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
     return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
   }
 
   const sql = `INSERT INTO precos (
-    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
     valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   db.run(sql, [
-    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
     valor_00_18 ? parseFloat(valor_00_18) : null,
     valor_19_23 ? parseFloat(valor_19_23) : null,
     valor_24_28 ? parseFloat(valor_24_28) : null,
@@ -644,12 +646,13 @@ app.post('/api/precos', (req, res) => {
 
 // Listar preços
 app.get('/api/precos', (req, res) => {
-  const sql = `SELECT p.*, c.nome as cidade_nome, a.nome as acomodacao_nome, m.nome as modalidade_nome
+  const sql = `SELECT p.*, c.nome as cidade_nome, o.nome_completo as operadora_nome, a.nome as acomodacao_nome, m.nome as modalidade_nome
     FROM precos p
     JOIN cidades c ON p.cidade_id = c.id
+    JOIN operadoras o ON p.operadora_id = o.id
     JOIN acomodacoes a ON p.acomodacao_id = a.id
     JOIN modalidades m ON p.modalidade_id = m.id
-    ORDER BY c.nome, m.nome, a.nome, validade_inicio`;
+    ORDER BY c.nome, o.nome_completo, m.nome, a.nome, validade_inicio`;
   db.all(sql, [], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: 'Erro ao buscar preços' });
@@ -677,21 +680,21 @@ app.get('/api/precos/:id', (req, res) => {
 app.put('/api/precos/:id', (req, res) => {
   const { id } = req.params;
   const {
-    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
     validade_inicio, validade_fim,
     valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38,
     valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
   } = req.body;
 
-  if (!cidade_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
+  if (!cidade_id || !operadora_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
     return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
   }
 
-  const sql = `UPDATE precos SET cidade_id = ?, tipo_coparticipacao = ?, acomodacao_id = ?, modalidade_id = ?, validade_inicio = ?, validade_fim = ?,
+  const sql = `UPDATE precos SET cidade_id = ?, operadora_id = ?, tipo_coparticipacao = ?, acomodacao_id = ?, modalidade_id = ?, validade_inicio = ?, validade_fim = ?,
     valor_00_18 = ?, valor_19_23 = ?, valor_24_28 = ?, valor_29_33 = ?, valor_34_38 = ?, valor_39_43 = ?, valor_44_48 = ?, valor_49_53 = ?, valor_54_58 = ?, valor_59_mais = ?
     WHERE id = ?`;
   db.run(sql, [
-    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
     valor_00_18 ? parseFloat(valor_00_18) : null,
     valor_19_23 ? parseFloat(valor_19_23) : null,
     valor_24_28 ? parseFloat(valor_24_28) : null,

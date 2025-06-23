@@ -28,6 +28,8 @@ function Login({ onLogin }) {
       if (response.ok && data.success) {
         localStorage.setItem('authToken', data.token);
         if (data.id) localStorage.setItem('corretorId', data.id);
+        if (data.nome) localStorage.setItem('corretorNome', data.nome);
+        if (data.telefone) localStorage.setItem('corretorTelefone', data.telefone);
         if (onLogin) onLogin();
       } else {
         setError('CPF ou senha inválidos');
