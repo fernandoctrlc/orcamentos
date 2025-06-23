@@ -16,7 +16,8 @@ function Menu() {
         { path: '/cidades', label: 'Cidades', icon: '🏙️' },
         { path: '/operadoras', label: 'Operadoras', icon: '🏢' },
         { path: '/modalidades', label: 'Modalidades', icon: '📋' },
-        { path: '/acomodacoes', label: 'Acomodações', icon: '🏠' }
+        { path: '/acomodacoes', label: 'Acomodações', icon: '🏠' },
+        { path: '/tabelas-preco', label: 'Tabelas de Preço', icon: '💲' }
       ]
     }
   ];

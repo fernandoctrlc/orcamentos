@@ -8,6 +8,7 @@ import Cidades from './components/Cidades';
 import Operadoras from './components/Operadoras';
 import Modalidades from './components/Modalidades';
 import Acomodacoes from './components/Acomodacoes';
+import TabelasDePreco from './components/TabelasDePreco';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/operadoras" element={<Operadoras />} />
             <Route path="/modalidades" element={<Modalidades />} />
             <Route path="/acomodacoes" element={<Acomodacoes />} />
+            <Route path="/tabelas-preco" element={<TabelasDePreco />} />
           </Routes>
         </div>
       </div>

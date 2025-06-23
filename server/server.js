@@ -73,6 +73,31 @@ db.serialize(() => {
     data_cadastro TEXT NOT NULL,
     dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
+
+  // Tabela de preços
+  db.run(`CREATE TABLE IF NOT EXISTS precos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cidade_id INTEGER NOT NULL,
+    tipo_coparticipacao TEXT NOT NULL CHECK(tipo_coparticipacao IN ('Com Coparticipação', 'Coparticipação Parcial')),
+    acomodacao_id INTEGER NOT NULL,
+    modalidade_id INTEGER NOT NULL,
+    validade_inicio TEXT NOT NULL,
+    validade_fim TEXT NOT NULL,
+    valor_00_18 DECIMAL(10,2),
+    valor_19_23 DECIMAL(10,2),
+    valor_24_28 DECIMAL(10,2),
+    valor_29_33 DECIMAL(10,2),
+    valor_34_38 DECIMAL(10,2),
+    valor_39_43 DECIMAL(10,2),
+    valor_44_48 DECIMAL(10,2),
+    valor_49_53 DECIMAL(10,2),
+    valor_54_58 DECIMAL(10,2),
+    valor_59_mais DECIMAL(10,2),
+    dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cidade_id) REFERENCES cidades(id),
+    FOREIGN KEY (acomodacao_id) REFERENCES acomodacoes(id),
+    FOREIGN KEY (modalidade_id) REFERENCES modalidades(id)
+  )`);
 });
 
 // Rota de teste
@@ -559,6 +584,132 @@ app.delete('/api/operadoras/:id', (req, res) => {
     }
     
     res.json({ message: 'Operadora deletada com sucesso!' });
+  });
+});
+
+// ===== ROTAS PARA TABELA DE PREÇOS =====
+// Cadastrar preço
+app.post('/api/precos', (req, res) => {
+  const {
+    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
+    validade_inicio, validade_fim,
+    valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38,
+    valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
+  } = req.body;
+
+  if (!cidade_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
+    return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
+  }
+
+  const sql = `INSERT INTO precos (
+    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  db.run(sql, [
+    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    valor_00_18 ? parseFloat(valor_00_18) : null,
+    valor_19_23 ? parseFloat(valor_19_23) : null,
+    valor_24_28 ? parseFloat(valor_24_28) : null,
+    valor_29_33 ? parseFloat(valor_29_33) : null,
+    valor_34_38 ? parseFloat(valor_34_38) : null,
+    valor_39_43 ? parseFloat(valor_39_43) : null,
+    valor_44_48 ? parseFloat(valor_44_48) : null,
+    valor_49_53 ? parseFloat(valor_49_53) : null,
+    valor_54_58 ? parseFloat(valor_54_58) : null,
+    valor_59_mais ? parseFloat(valor_59_mais) : null
+  ], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao cadastrar preço' });
+    }
+    res.status(201).json({ message: 'Preço cadastrado com sucesso!', id: this.lastID });
+  });
+});
+
+// Listar preços
+app.get('/api/precos', (req, res) => {
+  const sql = `SELECT p.*, c.nome as cidade_nome, a.nome as acomodacao_nome, m.nome as modalidade_nome
+    FROM precos p
+    JOIN cidades c ON p.cidade_id = c.id
+    JOIN acomodacoes a ON p.acomodacao_id = a.id
+    JOIN modalidades m ON p.modalidade_id = m.id
+    ORDER BY c.nome, m.nome, a.nome, validade_inicio`;
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar preços' });
+    }
+    res.json({ precos: rows });
+  });
+});
+
+// Buscar preço por ID
+app.get('/api/precos/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = `SELECT * FROM precos WHERE id = ?`;
+  db.get(sql, [id], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar preço' });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'Preço não encontrado' });
+    }
+    res.json({ preco: row });
+  });
+});
+
+// Atualizar preço
+app.put('/api/precos/:id', (req, res) => {
+  const { id } = req.params;
+  const {
+    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
+    validade_inicio, validade_fim,
+    valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38,
+    valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
+  } = req.body;
+
+  if (!cidade_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
+    return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
+  }
+
+  const sql = `UPDATE precos SET cidade_id = ?, tipo_coparticipacao = ?, acomodacao_id = ?, modalidade_id = ?, validade_inicio = ?, validade_fim = ?,
+    valor_00_18 = ?, valor_19_23 = ?, valor_24_28 = ?, valor_29_33 = ?, valor_34_38 = ?, valor_39_43 = ?, valor_44_48 = ?, valor_49_53 = ?, valor_54_58 = ?, valor_59_mais = ?
+    WHERE id = ?`;
+  db.run(sql, [
+    cidade_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    valor_00_18 ? parseFloat(valor_00_18) : null,
+    valor_19_23 ? parseFloat(valor_19_23) : null,
+    valor_24_28 ? parseFloat(valor_24_28) : null,
+    valor_29_33 ? parseFloat(valor_29_33) : null,
+    valor_34_38 ? parseFloat(valor_34_38) : null,
+    valor_39_43 ? parseFloat(valor_39_43) : null,
+    valor_44_48 ? parseFloat(valor_44_48) : null,
+    valor_49_53 ? parseFloat(valor_49_53) : null,
+    valor_54_58 ? parseFloat(valor_54_58) : null,
+    valor_59_mais ? parseFloat(valor_59_mais) : null,
+    id
+  ], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao atualizar preço' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Preço não encontrado' });
+    }
+    res.json({ message: 'Preço atualizado com sucesso!' });
+  });
+});
+
+// Deletar preço
+app.delete('/api/precos/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = 'DELETE FROM precos WHERE id = ?';
+  db.run(sql, [id], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao deletar preço' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Preço não encontrado' });
+    }
+    res.json({ message: 'Preço deletado com sucesso!' });
   });
 });
 
