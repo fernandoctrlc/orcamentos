@@ -6,6 +6,15 @@ function Menu() {
   const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState(null);
 
+  // Recuperar nome e telefone do corretor logado
+  const corretorNome = localStorage.getItem('corretorNome');
+  const corretorTelefone = localStorage.getItem('corretorTelefone');
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/login';
+  };
+
   const menuItems = [
     {
       id: 'cadastros',
@@ -49,6 +58,12 @@ function Menu() {
     <nav className="menu">
       <div className="menu-header">
         <h1>Sistema de Orçamentos</h1>
+        {corretorNome && (
+          <div className="corretor-logado">
+            <span>👤 {corretorNome}</span>
+            {corretorTelefone && <span style={{ fontSize: '13px', color: '#eee', marginLeft: 8 }}>({corretorTelefone})</span>}
+          </div>
+        )}
       </div>
       <ul className="menu-list">
         {menuItems.map((item) => (
@@ -80,6 +95,7 @@ function Menu() {
           </li>
         ))}
       </ul>
+      <button className="logout-btn" onClick={handleLogout}>Sair</button>
     </nav>
   );
 }
