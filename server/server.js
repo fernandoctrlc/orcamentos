@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const nodeHtmlToImage = require('node-html-to-image');
 
 const app = express();
 const PORT = 3001;
@@ -818,6 +819,43 @@ app.delete('/api/orcamentos/:id', (req, res) => {
     }
     res.json({ message: 'Orçamento deletado com sucesso!' });
   });
+});
+
+// Endpoint para gerar orçamento em PNG
+app.post('/api/orcamento-png', async (req, res) => {
+  const { nome, telefone, tabela, idadesValores } = req.body;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ccc; width: 500px;">
+      <h2 style='text-align:center;'>Orçamento</h2>
+      <p><strong>Nome:</strong> ${nome}</p>
+      <p><strong>Telefone:</strong> ${telefone}</p>
+      <p><strong>Tabela:</strong> ${tabela}</p>
+      <table border="1" cellpadding="5" cellspacing="0" style="margin-top: 20px; width:100%; border-collapse:collapse;">
+        <tr>
+          <th>Idade</th>
+          <th>Valor</th>
+        </tr>
+        ${Array.isArray(idadesValores) ? idadesValores.map(item => `
+          <tr>
+            <td style='text-align:center;'>${item.idade}</td>
+            <td style='text-align:right;'>R$ ${item.valor}</td>
+          </tr>
+        `).join('') : ''}
+      </table>
+    </div>
+  `;
+
+  try {
+    const image = await nodeHtmlToImage({
+      html,
+      type: 'png',
+      encoding: 'base64'
+    });
+    res.json({ image: `data:image/png;base64,${image}` });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao gerar imagem.' });
+  }
 });
 
 // Rota catch-all para React Router
