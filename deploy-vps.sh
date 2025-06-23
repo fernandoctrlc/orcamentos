@@ -36,7 +36,7 @@ BACKUP_DIR="/var/www/backups"
 LOG_FILE="/var/log/deploy-orcamentos.log"
 
 # Criar diretório de backup se não existir
-mkdir -e $BACKUP_DIR
+mkdir -p $BACKUP_DIR
 
 # Função para fazer backup
 backup_database() {
