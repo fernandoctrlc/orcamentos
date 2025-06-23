@@ -109,8 +109,10 @@ db.serialize(() => {
     idades TEXT NOT NULL, -- JSON string
     valor_total DECIMAL(10,2) NOT NULL,
     data_orcamento TEXT NOT NULL,
+    corretor_id INTEGER NOT NULL,
     dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tabela_preco_id) REFERENCES precos(id)
+    FOREIGN KEY (tabela_preco_id) REFERENCES precos(id),
+    FOREIGN KEY (corretor_id) REFERENCES corretores(id)
   )`);
 });
 
@@ -730,8 +732,8 @@ app.delete('/api/precos/:id', (req, res) => {
 // ===== ROTAS PARA ORÇAMENTOS =====
 // Cadastrar orçamento
 app.post('/api/orcamentos', (req, res) => {
-  const { tabela_preco_id, nome, telefone, idades } = req.body;
-  if (!tabela_preco_id || !nome || !telefone || !idades || !Array.isArray(idades) || idades.length === 0) {
+  const { tabela_preco_id, nome, telefone, idades, corretor_id } = req.body;
+  if (!tabela_preco_id || !nome || !telefone || !idades || !Array.isArray(idades) || idades.length === 0 || !corretor_id || isNaN(Number(corretor_id))) {
     return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos e pelo menos uma idade deve ser informada.' });
   }
 
@@ -757,14 +759,15 @@ app.post('/api/orcamentos', (req, res) => {
       valor_total += Number(tabela[faixa] || 0);
     });
     const data_orcamento = new Date().toISOString().split('T')[0];
-    const sql = `INSERT INTO orcamentos (tabela_preco_id, nome, telefone, idades, valor_total, data_orcamento) VALUES (?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO orcamentos (tabela_preco_id, nome, telefone, idades, valor_total, data_orcamento, corretor_id) VALUES (?, ?, ?, ?, ?, ?, ?)`;
     db.run(sql, [
       tabela_preco_id,
       nome.trim(),
       telefone.trim(),
       JSON.stringify(idades),
       valor_total,
-      data_orcamento
+      data_orcamento,
+      corretor_id
     ], function(err) {
       if (err) {
         return res.status(500).json({ error: 'Erro ao cadastrar orçamento' });
@@ -825,6 +828,17 @@ app.delete('/api/orcamentos/:id', (req, res) => {
 app.post('/api/orcamento-png', async (req, res) => {
   const { nome, telefone, tabela, idadesValores } = req.body;
 
+  // Calcular o total
+  let total = 0;
+  if (Array.isArray(idadesValores)) {
+    total = idadesValores.reduce((acc, item) => {
+      // item.valor pode vir como string '12,34', então converter para float
+      let valor = item.valor;
+      if (typeof valor === 'string') valor = parseFloat(valor.replace(',', '.'));
+      return acc + (isNaN(valor) ? 0 : valor);
+    }, 0);
+  }
+
   const html = `
     <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ccc; width: 500px;">
       <h2 style='text-align:center;'>Orçamento</h2>
@@ -843,6 +857,7 @@ app.post('/api/orcamento-png', async (req, res) => {
           </tr>
         `).join('') : ''}
       </table>
+      <div style='margin-top:20px; text-align:right; font-size:18px;'><strong>Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</div>
     </div>
   `;
 
@@ -856,6 +871,30 @@ app.post('/api/orcamento-png', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Erro ao gerar imagem.' });
   }
+});
+
+// Endpoint de login por CPF cadastrado
+app.post('/api/login', (req, res) => {
+  let { cpf, senha } = req.body;
+  if (!cpf || !senha) {
+    return res.status(400).json({ success: false, error: 'CPF e senha são obrigatórios' });
+  }
+  // Remover formatação do CPF
+  const cpfLimpo = cpf.replace(/\D/g, '');
+  db.get(
+    'SELECT * FROM corretores WHERE REPLACE(REPLACE(REPLACE(cpf, ".", ""), "-", ""), "/", "") = ?',
+    [cpfLimpo],
+    (err, corretor) => {
+      if (err) {
+        return res.status(500).json({ success: false, error: 'Erro ao buscar corretor' });
+      }
+      if (!corretor || corretor.senha !== senha) {
+        return res.status(401).json({ success: false, error: 'CPF ou senha inválidos' });
+      }
+      // Token simples (em produção, use JWT)
+      return res.json({ success: true, token: 'admin-token', nome: corretor.nome, id: corretor.id });
+    }
+  );
 });
 
 // Rota catch-all para React Router

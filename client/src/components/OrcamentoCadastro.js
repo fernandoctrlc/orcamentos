@@ -87,6 +87,7 @@ function OrcamentoCadastro() {
     }
     setLoading(true);
     try {
+      const corretorId = localStorage.getItem('corretorId');
       const response = await fetch('/api/orcamentos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,12 +95,57 @@ function OrcamentoCadastro() {
           tabela_preco_id: formData.tabela_preco_id,
           nome: formData.nome,
           telefone: formData.telefone,
-          idades
+          idades,
+          corretor_id: corretorId
         })
       });
       const data = await response.json();
       if (response.ok) {
         setMessage(`Orçamento salvo com sucesso! Valor total: R$ ${data.valor_total.toFixed(2).replace('.', ',')}`);
+        // Gerar imagem do orçamento
+        try {
+          // Montar descrição da tabela
+          const tabela = tabelas.find(t => String(t.id) === String(formData.tabela_preco_id));
+          const tabelaDescricao = tabela ? `${tabela.cidade_nome} - ${tabela.tipo_coparticipacao} - ${tabela.acomodacao_nome} - ${tabela.modalidade_nome} (${tabela.validade_inicio} a ${tabela.validade_fim})` : '';
+          // Montar idadesValores
+          const idadesValores = idades.map(idade => {
+            let faixa = '';
+            if (idade <= 18) faixa = 'valor_00_18';
+            else if (idade <= 23) faixa = 'valor_19_23';
+            else if (idade <= 28) faixa = 'valor_24_28';
+            else if (idade <= 33) faixa = 'valor_29_33';
+            else if (idade <= 38) faixa = 'valor_34_38';
+            else if (idade <= 43) faixa = 'valor_39_43';
+            else if (idade <= 48) faixa = 'valor_44_48';
+            else if (idade <= 53) faixa = 'valor_49_53';
+            else if (idade <= 58) faixa = 'valor_54_58';
+            else faixa = 'valor_59_mais';
+            return {
+              idade,
+              valor: (tabela && tabela[faixa]) ? Number(tabela[faixa]).toFixed(2).replace('.', ',') : '0,00'
+            };
+          });
+          // Chamar endpoint para gerar imagem
+          const respPng = await fetch('/api/orcamento-png', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nome: formData.nome,
+              telefone: formData.telefone,
+              tabela: tabelaDescricao,
+              idadesValores
+            })
+          });
+          const resPng = await respPng.json();
+          if (resPng.image) {
+            const link = document.createElement('a');
+            link.href = resPng.image;
+            link.download = 'orcamento.png';
+            link.click();
+          }
+        } catch (err) {
+          // Se der erro, apenas segue
+        }
         setFormData({ tabela_preco_id: '', nome: '', telefone: '', idade: '' });
         setIdades([]);
         setFaixas({});

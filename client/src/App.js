@@ -11,26 +11,39 @@ import Acomodacoes from './components/Acomodacoes';
 import TabelasDePreco from './components/TabelasDePreco';
 import OrcamentoCadastro from './components/OrcamentoCadastro';
 import OrcamentoConsulta from './components/OrcamentoConsulta';
+import Login from './components/Login';
+
+function PrivateRoute({ children }) {
+  const isAuth = localStorage.getItem('authToken') === 'admin-token';
+  return isAuth ? children : <Navigate to="/login" replace />;
+}
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Menu />
-        <div className="main-content">
-          <Routes>
-            <Route path="/" element={<Navigate to="/corretores" replace />} />
-            <Route path="/corretores" element={<CadastroCorretor />} />
-            <Route path="/corretores/lista" element={<ListaCorretores />} />
-            <Route path="/cidades" element={<Cidades />} />
-            <Route path="/operadoras" element={<Operadoras />} />
-            <Route path="/modalidades" element={<Modalidades />} />
-            <Route path="/acomodacoes" element={<Acomodacoes />} />
-            <Route path="/tabelas-preco" element={<TabelasDePreco />} />
-            <Route path="/orcamentos/cadastro" element={<OrcamentoCadastro />} />
-            <Route path="/orcamentos/consulta" element={<OrcamentoConsulta />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/login" element={<Login onLogin={() => window.location.href = '/'} />} />
+          <Route path="/*" element={
+            <PrivateRoute>
+              <Menu />
+              <div className="main-content">
+                <Routes>
+                  <Route path="/" element={<Navigate to="/corretores" replace />} />
+                  <Route path="/corretores" element={<CadastroCorretor />} />
+                  <Route path="/corretores/lista" element={<ListaCorretores />} />
+                  <Route path="/cidades" element={<Cidades />} />
+                  <Route path="/operadoras" element={<Operadoras />} />
+                  <Route path="/modalidades" element={<Modalidades />} />
+                  <Route path="/acomodacoes" element={<Acomodacoes />} />
+                  <Route path="/tabelas-preco" element={<TabelasDePreco />} />
+                  <Route path="/orcamentos/cadastro" element={<OrcamentoCadastro />} />
+                  <Route path="/orcamentos/consulta" element={<OrcamentoConsulta />} />
+                </Routes>
+              </div>
+            </PrivateRoute>
+          } />
+        </Routes>
       </div>
     </Router>
   );
