@@ -56,6 +56,12 @@ db.serialize(() => {
     estado TEXT NOT NULL,
     codigo_ibge TEXT,
     observacoes TEXT,
+    consultas_eletivas DECIMAL(10,2),
+    consultas_urgencias DECIMAL(10,2),
+    exames_simples DECIMAL(10,2),
+    exames_complexos DECIMAL(10,2),
+    terapias_especiais DECIMAL(10,2),
+    demais_terapias DECIMAL(10,2),
     dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
@@ -334,44 +340,39 @@ app.delete('/api/modalidades/:id', (req, res) => {
 // ===== ROTAS PARA CIDADES =====
 // Rota para cadastrar cidade
 app.post('/api/cidades', (req, res) => {
-  const { nome, estado, codigo_ibge, observacoes } = req.body;
-  
-  if (!nome || nome.trim() === '') {
-    return res.status(400).json({ error: 'Nome da cidade é obrigatório' });
+  const { nome, estado, codigo_ibge, observacoes, consultas_eletivas, consultas_urgencias, exames_simples, exames_complexos, terapias_especiais, demais_terapias } = req.body;
+
+  if (!nome || !estado) {
+    return res.status(400).json({ error: 'Nome e estado são obrigatórios' });
   }
-  
-  if (!estado || estado.trim() === '') {
-    return res.status(400).json({ error: 'Estado é obrigatório' });
-  }
-  
-  const sql = 'INSERT INTO cidades (nome, estado, codigo_ibge, observacoes) VALUES (?, ?, ?, ?)';
-  
+
+  const sql = `INSERT INTO cidades (nome, estado, codigo_ibge, observacoes, consultas_eletivas, consultas_urgencias, exames_simples, exames_complexos, terapias_especiais, demais_terapias) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   db.run(sql, [
-    nome.trim(), 
-    estado.trim(), 
-    codigo_ibge ? codigo_ibge.trim() : null, 
-    observacoes ? observacoes.trim() : null
+    nome.trim(),
+    estado.trim(),
+    codigo_ibge ? codigo_ibge.trim() : null,
+    observacoes ? observacoes.trim() : null,
+    consultas_eletivas ? parseFloat(consultas_eletivas) : null,
+    consultas_urgencias ? parseFloat(consultas_urgencias) : null,
+    exames_simples ? parseFloat(exames_simples) : null,
+    exames_complexos ? parseFloat(exames_complexos) : null,
+    terapias_especiais ? parseFloat(terapias_especiais) : null,
+    demais_terapias ? parseFloat(demais_terapias) : null
   ], function(err) {
     if (err) {
       return res.status(500).json({ error: 'Erro ao cadastrar cidade' });
     }
-    
-    res.status(201).json({ 
-      message: 'Cidade cadastrada com sucesso!',
-      id: this.lastID 
-    });
+    res.status(201).json({ message: 'Cidade cadastrada com sucesso!', id: this.lastID });
   });
 });
 
 // Rota para listar cidades
 app.get('/api/cidades', (req, res) => {
-  const sql = 'SELECT id, nome, estado, codigo_ibge, observacoes FROM cidades ORDER BY nome, estado';
-  
+  const sql = `SELECT id, nome, estado, codigo_ibge, observacoes, consultas_eletivas, consultas_urgencias, exames_simples, exames_complexos, terapias_especiais, demais_terapias FROM cidades ORDER BY nome, estado`;
   db.all(sql, [], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: 'Erro ao buscar cidades' });
     }
-    
     res.json({ cidades: rows });
   });
 });
@@ -379,16 +380,13 @@ app.get('/api/cidades', (req, res) => {
 // Rota para buscar cidade por ID
 app.get('/api/cidades/:id', (req, res) => {
   const { id } = req.params;
-  
-  db.get('SELECT id, nome, estado, codigo_ibge, observacoes FROM cidades WHERE id = ?', [id], (err, row) => {
+  db.get(`SELECT id, nome, estado, codigo_ibge, observacoes, consultas_eletivas, consultas_urgencias, exames_simples, exames_complexos, terapias_especiais, demais_terapias FROM cidades WHERE id = ?`, [id], (err, row) => {
     if (err) {
       return res.status(500).json({ error: 'Erro ao buscar cidade' });
     }
-    
     if (!row) {
       return res.status(404).json({ error: 'Cidade não encontrada' });
     }
-    
     res.json({ cidade: row });
   });
 });
@@ -396,33 +394,32 @@ app.get('/api/cidades/:id', (req, res) => {
 // Rota para atualizar cidade
 app.put('/api/cidades/:id', (req, res) => {
   const { id } = req.params;
-  const { nome, estado, codigo_ibge, observacoes } = req.body;
-  
-  if (!nome || nome.trim() === '') {
-    return res.status(400).json({ error: 'Nome da cidade é obrigatório' });
+  const { nome, estado, codigo_ibge, observacoes, consultas_eletivas, consultas_urgencias, exames_simples, exames_complexos, terapias_especiais, demais_terapias } = req.body;
+
+  if (!nome || !estado) {
+    return res.status(400).json({ error: 'Nome e estado são obrigatórios' });
   }
-  
-  if (!estado || estado.trim() === '') {
-    return res.status(400).json({ error: 'Estado é obrigatório' });
-  }
-  
-  const sql = 'UPDATE cidades SET nome = ?, estado = ?, codigo_ibge = ?, observacoes = ? WHERE id = ?';
-  
+
+  const sql = `UPDATE cidades SET nome = ?, estado = ?, codigo_ibge = ?, observacoes = ?, consultas_eletivas = ?, consultas_urgencias = ?, exames_simples = ?, exames_complexos = ?, terapias_especiais = ?, demais_terapias = ? WHERE id = ?`;
   db.run(sql, [
-    nome.trim(), 
-    estado.trim(), 
-    codigo_ibge ? codigo_ibge.trim() : null, 
-    observacoes ? observacoes.trim() : null, 
+    nome.trim(),
+    estado.trim(),
+    codigo_ibge ? codigo_ibge.trim() : null,
+    observacoes ? observacoes.trim() : null,
+    consultas_eletivas ? parseFloat(consultas_eletivas) : null,
+    consultas_urgencias ? parseFloat(consultas_urgencias) : null,
+    exames_simples ? parseFloat(exames_simples) : null,
+    exames_complexos ? parseFloat(exames_complexos) : null,
+    terapias_especiais ? parseFloat(terapias_especiais) : null,
+    demais_terapias ? parseFloat(demais_terapias) : null,
     id
   ], function(err) {
     if (err) {
       return res.status(500).json({ error: 'Erro ao atualizar cidade' });
     }
-    
     if (this.changes === 0) {
       return res.status(404).json({ error: 'Cidade não encontrada' });
     }
-    
     res.json({ message: 'Cidade atualizada com sucesso!' });
   });
 });

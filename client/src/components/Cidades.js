@@ -7,7 +7,13 @@ function Cidades() {
     nome: '', 
     estado: '', 
     codigo_ibge: '', 
-    observacoes: '' 
+    observacoes: '',
+    consultas_eletivas: '',
+    consultas_urgencias: '',
+    exames_simples: '',
+    exames_complexos: '',
+    terapias_especiais: '',
+    demais_terapias: ''
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -65,7 +71,7 @@ function Cidades() {
       
       if (response.ok) {
         setMessage(data.message);
-        setFormData({ nome: '', estado: '', codigo_ibge: '', observacoes: '' });
+        setFormData({ nome: '', estado: '', codigo_ibge: '', observacoes: '', consultas_eletivas: '', consultas_urgencias: '', exames_simples: '', exames_complexos: '', terapias_especiais: '', demais_terapias: '' });
         setEditingId(null);
         carregarCidades();
       } else {
@@ -82,7 +88,13 @@ function Cidades() {
       nome: cidade.nome, 
       estado: cidade.estado, 
       codigo_ibge: cidade.codigo_ibge || '', 
-      observacoes: cidade.observacoes || '' 
+      observacoes: cidade.observacoes || '',
+      consultas_eletivas: cidade.consultas_eletivas || '',
+      consultas_urgencias: cidade.consultas_urgencias || '',
+      exames_simples: cidade.exames_simples || '',
+      exames_complexos: cidade.exames_complexos || '',
+      terapias_especiais: cidade.terapias_especiais || '',
+      demais_terapias: cidade.demais_terapias || ''
     });
     setEditingId(cidade.id);
     setMessage('');
@@ -114,7 +126,7 @@ function Cidades() {
   };
 
   const handleCancel = () => {
-    setFormData({ nome: '', estado: '', codigo_ibge: '', observacoes: '' });
+    setFormData({ nome: '', estado: '', codigo_ibge: '', observacoes: '', consultas_eletivas: '', consultas_urgencias: '', exames_simples: '', exames_complexos: '', terapias_especiais: '', demais_terapias: '' });
     setEditingId(null);
     setMessage('');
   };
@@ -178,6 +190,72 @@ function Cidades() {
                 value={formData.observacoes}
                 onChange={(e) => setFormData({ ...formData, observacoes: e.target.value })}
                 placeholder="Observações adicionais"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="consultas_eletivas">Consultas Eletivas:</label>
+              <input
+                type="text"
+                id="consultas_eletivas"
+                value={formData.consultas_eletivas}
+                onChange={(e) => setFormData({ ...formData, consultas_eletivas: e.target.value })}
+                placeholder="Consultas Eletivas"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="consultas_urgencias">Consultas Urgencias:</label>
+              <input
+                type="text"
+                id="consultas_urgencias"
+                value={formData.consultas_urgencias}
+                onChange={(e) => setFormData({ ...formData, consultas_urgencias: e.target.value })}
+                placeholder="Consultas Urgencias"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="exames_simples">Exames Simples:</label>
+              <input
+                type="text"
+                id="exames_simples"
+                value={formData.exames_simples}
+                onChange={(e) => setFormData({ ...formData, exames_simples: e.target.value })}
+                placeholder="Exames Simples"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="exames_complexos">Exames Complexos:</label>
+              <input
+                type="text"
+                id="exames_complexos"
+                value={formData.exames_complexos}
+                onChange={(e) => setFormData({ ...formData, exames_complexos: e.target.value })}
+                placeholder="Exames Complexos"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="terapias_especiais">Terapias Especiais:</label>
+              <input
+                type="text"
+                id="terapias_especiais"
+                value={formData.terapias_especiais}
+                onChange={(e) => setFormData({ ...formData, terapias_especiais: e.target.value })}
+                placeholder="Terapias Especiais"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="demais_terapias">Demais Terapias:</label>
+              <input
+                type="text"
+                id="demais_terapias"
+                value={formData.demais_terapias}
+                onChange={(e) => setFormData({ ...formData, demais_terapias: e.target.value })}
+                placeholder="Demais Terapias"
               />
             </div>
           </div>
