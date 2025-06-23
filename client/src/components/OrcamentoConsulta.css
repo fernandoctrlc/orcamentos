@@ -1,0 +1,151 @@
+@import './PlaceholderStyles.css';
+
+.orcamento-consulta-container {
+  padding: 20px;
+  margin-left: 280px;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.orcamento-consulta-container h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.message {
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.busca-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.busca-section input {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.list-section {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-style: italic;
+}
+
+.orcamentos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.orcamento-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.orcamento-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.orcamento-info {
+  flex: 1;
+}
+
+.orcamento-id {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.orcamento-info h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.orcamento-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.orcamento-modal-content {
+  background: white;
+  padding: 30px 25px 20px 25px;
+  border-radius: 8px;
+  min-width: 320px;
+  max-width: 95vw;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  position: relative;
+}
+
+.btn-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #f8d7da;
+  color: #721c24;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-close:hover {
+  background: #f5c6cb;
+}
+
+@media (max-width: 768px) {
+  .orcamento-consulta-container {
+    margin-left: 0;
+    padding: 10px;
+  }
+  .orcamento-consulta-container h2 {
+    font-size: 1.5rem;
+  }
+  .orcamentos-grid {
+    grid-template-columns: 1fr;
+  }
+  .orcamento-modal-content {
+    min-width: 0;
+    padding: 20px 10px 10px 10px;
+  }
+} 

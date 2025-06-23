@@ -9,6 +9,8 @@ import Operadoras from './components/Operadoras';
 import Modalidades from './components/Modalidades';
 import Acomodacoes from './components/Acomodacoes';
 import TabelasDePreco from './components/TabelasDePreco';
+import OrcamentoCadastro from './components/OrcamentoCadastro';
+import OrcamentoConsulta from './components/OrcamentoConsulta';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
             <Route path="/modalidades" element={<Modalidades />} />
             <Route path="/acomodacoes" element={<Acomodacoes />} />
             <Route path="/tabelas-preco" element={<TabelasDePreco />} />
+            <Route path="/orcamentos/cadastro" element={<OrcamentoCadastro />} />
+            <Route path="/orcamentos/consulta" element={<OrcamentoConsulta />} />
           </Routes>
         </div>
       </div>

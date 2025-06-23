@@ -98,6 +98,19 @@ db.serialize(() => {
     FOREIGN KEY (acomodacao_id) REFERENCES acomodacoes(id),
     FOREIGN KEY (modalidade_id) REFERENCES modalidades(id)
   )`);
+
+  // Tabela de orçamentos
+  db.run(`CREATE TABLE IF NOT EXISTS orcamentos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tabela_preco_id INTEGER NOT NULL,
+    nome TEXT NOT NULL,
+    telefone TEXT NOT NULL,
+    idades TEXT NOT NULL, -- JSON string
+    valor_total DECIMAL(10,2) NOT NULL,
+    data_orcamento TEXT NOT NULL,
+    dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tabela_preco_id) REFERENCES precos(id)
+  )`);
 });
 
 // Rota de teste
@@ -710,6 +723,100 @@ app.delete('/api/precos/:id', (req, res) => {
       return res.status(404).json({ error: 'Preço não encontrado' });
     }
     res.json({ message: 'Preço deletado com sucesso!' });
+  });
+});
+
+// ===== ROTAS PARA ORÇAMENTOS =====
+// Cadastrar orçamento
+app.post('/api/orcamentos', (req, res) => {
+  const { tabela_preco_id, nome, telefone, idades } = req.body;
+  if (!tabela_preco_id || !nome || !telefone || !idades || !Array.isArray(idades) || idades.length === 0) {
+    return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos e pelo menos uma idade deve ser informada.' });
+  }
+
+  // Buscar tabela de preço
+  db.get('SELECT * FROM precos WHERE id = ?', [tabela_preco_id], (err, tabela) => {
+    if (err || !tabela) {
+      return res.status(400).json({ error: 'Tabela de preço não encontrada.' });
+    }
+    // Calcular valor total
+    let valor_total = 0;
+    idades.forEach(idade => {
+      let faixa = '';
+      if (idade <= 18) faixa = 'valor_00_18';
+      else if (idade <= 23) faixa = 'valor_19_23';
+      else if (idade <= 28) faixa = 'valor_24_28';
+      else if (idade <= 33) faixa = 'valor_29_33';
+      else if (idade <= 38) faixa = 'valor_34_38';
+      else if (idade <= 43) faixa = 'valor_39_43';
+      else if (idade <= 48) faixa = 'valor_44_48';
+      else if (idade <= 53) faixa = 'valor_49_53';
+      else if (idade <= 58) faixa = 'valor_54_58';
+      else faixa = 'valor_59_mais';
+      valor_total += Number(tabela[faixa] || 0);
+    });
+    const data_orcamento = new Date().toISOString().split('T')[0];
+    const sql = `INSERT INTO orcamentos (tabela_preco_id, nome, telefone, idades, valor_total, data_orcamento) VALUES (?, ?, ?, ?, ?, ?)`;
+    db.run(sql, [
+      tabela_preco_id,
+      nome.trim(),
+      telefone.trim(),
+      JSON.stringify(idades),
+      valor_total,
+      data_orcamento
+    ], function(err) {
+      if (err) {
+        return res.status(500).json({ error: 'Erro ao cadastrar orçamento' });
+      }
+      res.status(201).json({ message: 'Orçamento cadastrado com sucesso!', id: this.lastID, valor_total });
+    });
+  });
+});
+
+// Listar orçamentos
+app.get('/api/orcamentos', (req, res) => {
+  const sql = `SELECT o.*, p.cidade_id, p.tipo_coparticipacao, p.acomodacao_id, p.modalidade_id, p.validade_inicio, p.validade_fim
+    FROM orcamentos o
+    JOIN precos p ON o.tabela_preco_id = p.id
+    ORDER BY o.data_orcamento DESC, o.id DESC`;
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar orçamentos' });
+    }
+    // Parse idades
+    rows.forEach(row => { row.idades = JSON.parse(row.idades); });
+    res.json({ orcamentos: rows });
+  });
+});
+
+// Buscar orçamento por ID
+app.get('/api/orcamentos/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = `SELECT * FROM orcamentos WHERE id = ?`;
+  db.get(sql, [id], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar orçamento' });
+    }
+    if (!row) {
+      return res.status(404).json({ error: 'Orçamento não encontrado' });
+    }
+    row.idades = JSON.parse(row.idades);
+    res.json({ orcamento: row });
+  });
+});
+
+// Deletar orçamento
+app.delete('/api/orcamentos/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = 'DELETE FROM orcamentos WHERE id = ?';
+  db.run(sql, [id], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao deletar orçamento' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Orçamento não encontrado' });
+    }
+    res.json({ message: 'Orçamento deletado com sucesso!' });
   });
 });
 
