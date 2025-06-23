@@ -37,6 +37,15 @@ function Menu() {
         { path: '/orcamentos/cadastro', label: 'Cadastro de Orçamentos', icon: '➕' },
         { path: '/orcamentos/consulta', label: 'Consulta de Orçamentos', icon: '🔎' }
       ]
+    },
+    {
+      id: 'configuracoes',
+      label: 'Configurações',
+      icon: '⚙️',
+      items: [
+        { path: '/configuracoes/integracoes', label: 'Integrações', icon: '🔗' },
+        { path: '/configuracoes/alertas', label: 'Alertas', icon: '🔔' }
+      ]
     }
   ];
 

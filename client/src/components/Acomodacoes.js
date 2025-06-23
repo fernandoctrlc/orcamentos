@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Acomodacoes.css';
+import ListaAcomodacoes from './ListaAcomodacoes';
 
 function Acomodacoes() {
   const [acomodacoes, setAcomodacoes] = useState([]);
@@ -7,6 +8,7 @@ function Acomodacoes() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [mostrarLista, setMostrarLista] = useState(false);
 
   useEffect(() => {
     carregarAcomodacoes();
@@ -102,6 +104,10 @@ function Acomodacoes() {
     setMessage('');
   };
 
+  if (mostrarLista) {
+    return <ListaAcomodacoes onVoltar={() => setMostrarLista(false)} />;
+  }
+
   return (
     <div className="acomodacoes-container">
       <h2>🏠 Gestão de Acomodações</h2>
@@ -145,6 +151,9 @@ function Acomodacoes() {
                 Cancelar
               </button>
             )}
+            <button type="button" className="secondary" onClick={() => setMostrarLista(true)}>
+              🔍 Consultar no Banco
+            </button>
           </div>
         </form>
       </div>

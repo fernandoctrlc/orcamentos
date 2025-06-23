@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Cidades.css';
+import ListaCidades from './ListaCidades';
 
 function Cidades() {
   const [cidades, setCidades] = useState([]);
@@ -18,6 +19,7 @@ function Cidades() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [mostrarLista, setMostrarLista] = useState(false);
 
   const estados = [
     'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 
@@ -130,6 +132,10 @@ function Cidades() {
     setEditingId(null);
     setMessage('');
   };
+
+  if (mostrarLista) {
+    return <ListaCidades onVoltar={() => setMostrarLista(false)} />;
+  }
 
   return (
     <div className="cidades-container">
@@ -264,10 +270,13 @@ function Cidades() {
               {loading ? 'Salvando...' : (editingId ? 'Atualizar' : 'Cadastrar')}
             </button>
             {editingId && (
-              <button type="button" onClick={handleCancel} disabled={loading}>
+              <button type="button" onClick={handleCancel} className="cancel-btn">
                 Cancelar
               </button>
             )}
+            <button type="button" className="secondary" onClick={() => setMostrarLista(true)}>
+              🔍 Consultar no Banco
+            </button>
           </div>
         </form>
       </div>

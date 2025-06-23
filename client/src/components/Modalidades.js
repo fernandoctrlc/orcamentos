@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Modalidades.css';
+import ListaModalidades from './ListaModalidades';
 
 function Modalidades() {
   const [modalidades, setModalidades] = useState([]);
@@ -7,6 +8,7 @@ function Modalidades() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [mostrarLista, setMostrarLista] = useState(false);
 
   useEffect(() => {
     carregarModalidades();
@@ -99,6 +101,10 @@ function Modalidades() {
     setMessage('');
   };
 
+  if (mostrarLista) {
+    return <ListaModalidades onVoltar={() => setMostrarLista(false)} />;
+  }
+
   return (
     <div className="modalidades-container">
       <h2>📋 Gestão de Modalidades</h2>
@@ -132,6 +138,9 @@ function Modalidades() {
                 Cancelar
               </button>
             )}
+            <button type="button" className="secondary" onClick={() => setMostrarLista(true)}>
+              🔍 Consultar no Banco
+            </button>
           </div>
         </form>
       </div>

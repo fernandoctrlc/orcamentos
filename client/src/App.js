@@ -39,6 +39,8 @@ function App() {
                   <Route path="/tabelas-preco" element={<TabelasDePreco />} />
                   <Route path="/orcamentos/cadastro" element={<OrcamentoCadastro />} />
                   <Route path="/orcamentos/consulta" element={<OrcamentoConsulta />} />
+                  <Route path="/configuracoes/integracoes" element={<div style={{padding:32}}><h2>Integrações</h2><p>Página de integrações.</p></div>} />
+                  <Route path="/configuracoes/alertas" element={<div style={{padding:32}}><h2>Alertas</h2><p>Página de alertas.</p></div>} />
                 </Routes>
               </div>
             </PrivateRoute>

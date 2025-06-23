@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Operadoras.css';
+import ListaOperadoras from './ListaOperadoras';
 
 function Operadoras() {
   const [operadoras, setOperadoras] = useState([]);
@@ -11,6 +12,7 @@ function Operadoras() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [mostrarLista, setMostrarLista] = useState(false);
 
   useEffect(() => {
     carregarOperadoras();
@@ -119,6 +121,10 @@ function Operadoras() {
     setMessage('');
   };
 
+  if (mostrarLista) {
+    return <ListaOperadoras onVoltar={() => setMostrarLista(false)} />;
+  }
+
   const formatarData = (data) => {
     if (!data) return '';
     const [ano, mes, dia] = data.split('-');
@@ -180,6 +186,9 @@ function Operadoras() {
                 Cancelar
               </button>
             )}
+            <button type="button" className="secondary" onClick={() => setMostrarLista(true)}>
+              🔍 Consultar no Banco
+            </button>
           </div>
         </form>
       </div>
