@@ -3,7 +3,7 @@
 echo "🚀 Iniciando deploy do Sistema de Cotação..."
 
 # Navegar para o diretório do projeto
-cd /var/www/orcamentos
+# cd /var/www/orcamentos
 
 echo "📁 Diretório atual: $(pwd)"
 

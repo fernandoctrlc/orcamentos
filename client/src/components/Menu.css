@@ -1,0 +1,160 @@
+.menu {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  width: 280px;
+  padding: 20px 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.menu-header {
+  padding: 0 20px 30px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.menu-header h1 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.menu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-item {
+  margin: 0;
+  position: relative;
+}
+
+.menu-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+
+.menu-dropdown-header:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-left-color: rgba(255, 255, 255, 0.5);
+}
+
+.menu-item.active .menu-dropdown-header {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-left-color: #fff;
+  font-weight: 600;
+}
+
+.menu-icon {
+  font-size: 1.2rem;
+  margin-right: 12px;
+  width: 24px;
+  text-align: center;
+}
+
+.menu-label {
+  font-size: 1rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+.dropdown-arrow {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+  color: white;
+}
+
+.dropdown-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.dropdown-menu.open {
+  max-height: 400px;
+}
+
+.dropdown-item {
+  margin: 0;
+}
+
+.dropdown-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px 12px 56px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  border-left: 3px solid transparent;
+}
+
+.dropdown-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.dropdown-link.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-left-color: #fff;
+  font-weight: 500;
+}
+
+.submenu-icon {
+  font-size: 1rem;
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+}
+
+.submenu-label {
+  flex: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .menu {
+    width: 100%;
+    min-height: auto;
+    position: relative;
+  }
+  
+  .menu-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .menu-item {
+    width: 100%;
+  }
+  
+  .dropdown-menu {
+    position: relative;
+  }
+} 
