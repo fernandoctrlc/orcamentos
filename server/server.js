@@ -826,13 +826,12 @@ app.delete('/api/orcamentos/:id', (req, res) => {
 
 // Endpoint para gerar orçamento em PNG
 app.post('/api/orcamento-png', async (req, res) => {
-  const { nome, telefone, tabela, idadesValores } = req.body;
+  const { nome, telefone, tabela, idadesValores, vendedor_nome, vendedor_telefone } = req.body;
 
   // Calcular o total
   let total = 0;
   if (Array.isArray(idadesValores)) {
     total = idadesValores.reduce((acc, item) => {
-      // item.valor pode vir como string '12,34', então converter para float
       let valor = item.valor;
       if (typeof valor === 'string') valor = parseFloat(valor.replace(',', '.'));
       return acc + (isNaN(valor) ? 0 : valor);
@@ -840,24 +839,38 @@ app.post('/api/orcamento-png', async (req, res) => {
   }
 
   const html = `
-    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ccc; width: 500px;">
-      <h2 style='text-align:center;'>Orçamento</h2>
-      <p><strong>Nome:</strong> ${nome}</p>
-      <p><strong>Telefone:</strong> ${telefone}</p>
-      <p><strong>Tabela:</strong> ${tabela}</p>
-      <table border="1" cellpadding="5" cellspacing="0" style="margin-top: 20px; width:100%; border-collapse:collapse;">
-        <tr>
-          <th>Idade</th>
-          <th>Valor</th>
-        </tr>
-        ${Array.isArray(idadesValores) ? idadesValores.map(item => `
-          <tr>
-            <td style='text-align:center;'>${item.idade}</td>
-            <td style='text-align:right;'>R$ ${item.valor}</td>
-          </tr>
-        `).join('') : ''}
-      </table>
-      <div style='margin-top:20px; text-align:right; font-size:18px;'><strong>Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}</div>
+    <div style="background: #fff; padding: 0; margin: 0;">
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #f9f9f9; padding: 32px 24px; border-radius: 16px; border: 2px solid #1976d2; width: 520px; box-shadow: 0 4px 16px rgba(25,118,210,0.08); margin: 5mm auto; display: block;">
+        <h2 style='text-align:center; color:#1976d2; margin-bottom: 8px;'>Orçamento de Plano de Saúde</h2>
+        <div style='margin-bottom: 16px; text-align:center; color:#444;'>
+          <span style='font-size:17px;'><strong>Cliente:</strong> ${nome}</span><br/>
+          <span style='font-size:15px;'><strong>Telefone:</strong> ${telefone}</span><br/>
+          <span style='font-size:15px;'><strong>Tabela:</strong> ${tabela}</span>
+        </div>
+        <table border="0" cellpadding="8" cellspacing="0" style="margin: 0 auto 18px auto; width:95%; border-radius:8px; background:#fff; border-collapse:separate; box-shadow:0 1px 4px #eee;">
+          <thead>
+            <tr style='background:#1976d2; color:#fff;'>
+              <th style='border-radius:8px 0 0 0;'>Idade</th>
+              <th style='border-radius:0 8px 0 0;'>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+          ${Array.isArray(idadesValores) ? idadesValores.map(item => `
+            <tr style='text-align:center; font-size:16px;'>
+              <td>${item.idade}</td>
+              <td style='text-align:right;'>R$ ${item.valor}</td>
+            </tr>
+          `).join('') : ''}
+          </tbody>
+        </table>
+        <div style='margin: 18px 0 0 0; text-align:right; font-size:22px; color:#1976d2; font-weight:bold; letter-spacing:1px;'>
+          Total: R$ ${total.toFixed(2).replace('.', ',')}
+        </div>
+        <div style='margin-top:32px; border-top:1px solid #eee; padding-top:12px; text-align:center; color:#555; font-size:15px;'>
+          <span><strong>Vendedor:</strong> ${vendedor_nome || '-'}<br/>
+          <strong>Contato:</strong> ${vendedor_telefone || '-'}</span>
+        </div>
+      </div>
     </div>
   `;
 
@@ -892,7 +905,7 @@ app.post('/api/login', (req, res) => {
         return res.status(401).json({ success: false, error: 'CPF ou senha inválidos' });
       }
       // Token simples (em produção, use JWT)
-      return res.json({ success: true, token: 'admin-token', nome: corretor.nome, id: corretor.id });
+      return res.json({ success: true, token: 'admin-token', nome: corretor.nome, id: corretor.id, telefone: corretor.telefone });
     }
   );
 });
