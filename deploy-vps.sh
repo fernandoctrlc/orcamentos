@@ -36,7 +36,7 @@ BACKUP_DIR="/var/www/backups"
 LOG_FILE="/var/log/deploy-orcamentos.log"
 
 # Criar diretório de backup se não existir
-mkdir -p $BACKUP_DIR
+mkdir -e $BACKUP_DIR
 
 # Função para fazer backup
 backup_database() {
@@ -186,24 +186,18 @@ restart_services() {
     log "Reiniciando serviços..."
     
     # Parar processo existente se houver
-    pm2 stop orcamentos-server 2>/dev/null || warn "Processo não estava rodando"
-    pm2 delete orcamentos-server 2>/dev/null || warn "Processo não existia"
+    pm2 stop orcamentos 2>/dev/null || warn "Processo não estava rodando"
+    pm2 delete orcamentos 2>/dev/null || warn "Processo não existia"
     
     # Iniciar novo processo
     cd $PROJECT_DIR
-    pm2 start server/server.js --name orcamentos-server
+    pm2 start server/server.js --name orcamentos
     
     if [ $? -eq 0 ]; then
         log "Servidor iniciado com PM2"
-        
-        # Salvar configuração PM2
         pm2 save
-        
-        # Configurar para iniciar com o sistema (se não estiver configurado)
-        pm2 startup 2>/dev/null || warn "PM2 startup já configurado"
-        
     else
-        error "Erro ao iniciar servidor"
+        error "Erro ao iniciar servidor com PM2"
         exit 1
     fi
 }
@@ -222,7 +216,7 @@ check_server() {
     else
         error "❌ Servidor não está respondendo"
         log "Verificando logs do PM2..."
-        pm2 logs orcamentos-server --lines 10
+        pm2 logs orcamentos --lines 10
         exit 1
     fi
 }
