@@ -17,15 +17,16 @@ function Menu() {
         { path: '/operadoras', label: 'Operadoras', icon: '🏢' },
         { path: '/modalidades', label: 'Modalidades', icon: '📋' },
         { path: '/acomodacoes', label: 'Acomodações', icon: '🏠' },
-        { path: '/tabelas-preco', label: 'Tabelas de Preço', icon: '💲' },
-        {
-          label: 'Orçamentos',
-          icon: '📝',
-          children: [
-            { path: '/orcamentos/cadastro', label: 'Cadastro de Orçamentos', icon: '➕' },
-            { path: '/orcamentos/consulta', label: 'Consulta de Orçamentos', icon: '🔎' }
-          ]
-        }
+        { path: '/tabelas-preco', label: 'Tabelas de Preço', icon: '💲' }
+      ]
+    },
+    {
+      id: 'orcamentos',
+      label: 'Orçamentos',
+      icon: '📝',
+      items: [
+        { path: '/orcamentos/cadastro', label: 'Cadastro de Orçamentos', icon: '➕' },
+        { path: '/orcamentos/consulta', label: 'Consulta de Orçamentos', icon: '🔎' }
       ]
     }
   ];
