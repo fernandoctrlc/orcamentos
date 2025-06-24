@@ -885,6 +885,9 @@ app.post('/api/orcamento-png', async (req, res) => {
   const html = `
     <div style="background: #fff; padding: 0; margin: 0;">
       <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #f9f9f9; padding: 32px 24px; border-radius: 16px; border: 2px solid #1976d2; width: 520px; box-shadow: 0 4px 16px rgba(25,118,210,0.08); margin: 5mm auto; display: block;">
+        <div style='text-align:center; margin-bottom: 16px;'>
+          <img src="/logov3.png" alt="Logo" style="max-width: 150px; height: auto; margin-bottom: 8px;" />
+        </div>
         <h2 style='text-align:center; color:#1976d2; margin-bottom: 8px;'>Orçamento de Plano de Saúde</h2>
         <div style='margin-bottom: 16px; text-align:center; color:#444;'>
           <span style='font-size:17px;'><strong>Cliente:</strong> ${nome}</span><br/>
