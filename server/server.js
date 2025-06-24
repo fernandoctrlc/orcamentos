@@ -829,7 +829,7 @@ app.delete('/api/orcamentos/:id', (req, res) => {
 
 // Endpoint para gerar orçamento em PNG
 app.post('/api/orcamento-png', async (req, res) => {
-  const { nome, telefone, tabela, idadesValores, vendedor_nome, vendedor_telefone } = req.body;
+  const { nome, telefone, tabela, idadesValores, vendedor_nome, vendedor_telefone, tabela_preco_id } = req.body;
 
   // Calcular o total
   let total = 0;
@@ -839,6 +839,47 @@ app.post('/api/orcamento-png', async (req, res) => {
       if (typeof valor === 'string') valor = parseFloat(valor.replace(',', '.'));
       return acc + (isNaN(valor) ? 0 : valor);
     }, 0);
+  }
+
+  // Buscar coparticipações da cidade vinculada à tabela de preço
+  let coparticipacoesHtml = '';
+  if (tabela_preco_id) {
+    try {
+      // Buscar tabela de preço
+      const tabelaPreco = await new Promise((resolve, reject) => {
+        db.get('SELECT * FROM precos WHERE id = ?', [tabela_preco_id], (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
+      });
+      if (tabelaPreco && tabelaPreco.cidade_id) {
+        // Buscar cidade vinculada
+        const cidade = await new Promise((resolve, reject) => {
+          db.get('SELECT * FROM cidades WHERE id = ?', [tabelaPreco.cidade_id], (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          });
+        });
+        if (cidade) {
+          coparticipacoesHtml = `
+            <div style='margin: 24px 0 0 0; padding: 16px; background: #f4f7fa; border-radius: 10px; border: 1.5px solid #1976d2;'>
+              <h3 style='color:#1976d2; margin:0 0 8px 0; font-size:18px;'>Coparticipações da Cidade (${cidade.nome} - ${cidade.estado})</h3>
+              <ul style='list-style:none; padding:0; margin:0; font-size:15px;'>
+                <li><strong>Consultas Eletivas:</strong> R$ ${cidade.consultas_eletivas ? Number(cidade.consultas_eletivas).toFixed(2).replace('.', ',') : '-'}</li>
+                <li><strong>Consultas Urgências:</strong> R$ ${cidade.consultas_urgencias ? Number(cidade.consultas_urgencias).toFixed(2).replace('.', ',') : '-'}</li>
+                <li><strong>Exames Simples:</strong> R$ ${cidade.exames_simples ? Number(cidade.exames_simples).toFixed(2).replace('.', ',') : '-'}</li>
+                <li><strong>Exames Complexos:</strong> R$ ${cidade.exames_complexos ? Number(cidade.exames_complexos).toFixed(2).replace('.', ',') : '-'}</li>
+                <li><strong>Terapias Especiais:</strong> R$ ${cidade.terapias_especiais ? Number(cidade.terapias_especiais).toFixed(2).replace('.', ',') : '-'}</li>
+                <li><strong>Demais Terapias:</strong> R$ ${cidade.demais_terapias ? Number(cidade.demais_terapias).toFixed(2).replace('.', ',') : '-'}</li>
+              </ul>
+            </div>
+          `;
+        }
+      }
+    } catch (err) {
+      // Se der erro, não exibe coparticipações
+      coparticipacoesHtml = '';
+    }
   }
 
   const html = `
@@ -869,6 +910,7 @@ app.post('/api/orcamento-png', async (req, res) => {
         <div style='margin: 18px 0 0 0; text-align:right; font-size:22px; color:#1976d2; font-weight:bold; letter-spacing:1px;'>
           Total: R$ ${total.toFixed(2).replace('.', ',')}
         </div>
+        ${coparticipacoesHtml}
         <div style='margin-top:32px; border-top:1px solid #eee; padding-top:12px; text-align:center; color:#555; font-size:15px;'>
           <span><strong>Vendedor:</strong> ${vendedor_nome || '-'}<br/>
           <strong>Contato:</strong> ${vendedor_telefone || '-'}</span>

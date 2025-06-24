@@ -137,7 +137,8 @@ function OrcamentoCadastro() {
               tabela: tabelaDescricao,
               idadesValores,
               vendedor_nome: vendedorNome,
-              vendedor_telefone: vendedorTelefone
+              vendedor_telefone: vendedorTelefone,
+              tabela_preco_id: formData.tabela_preco_id
             })
           });
           const resPng = await respPng.json();
