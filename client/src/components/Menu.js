@@ -66,6 +66,9 @@ function Menu() {
   return (
     <nav className="menu">
       <div className="menu-header">
+        <div className="menu-logo">
+          <img src="/logov3.png" alt="Logo" />
+        </div>
         <h1>Sistema de Orçamentos</h1>
         {corretorNome && (
           <div className="corretor-logado">

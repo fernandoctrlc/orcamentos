@@ -42,6 +42,9 @@ function Login({ onLogin }) {
   return (
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
+        <div className="login-logo">
+          <img src="/logov3.png" alt="Logo" />
+        </div>
         <h2>Login</h2>
         {error && <div className="login-error">{error}</div>}
         <div className="form-group">
