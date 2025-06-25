@@ -133,6 +133,35 @@
   background: #f5c6cb;
 }
 
+.modal-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.btn-reimprimir {
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-reimprimir:hover {
+  background: #125ea2;
+}
+
+.btn-reimprimir:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .orcamento-consulta-container {
     margin-left: 0;
