@@ -971,18 +971,19 @@ app.post('/api/orcamento-png', async (req, res) => {
     </div>
   `;
 
-  try {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+  nodeHtmlToImage({
+    html,
+    puppeteer,
+    puppeteerArgs: ['--no-sandbox', '--disable-setuid-sandbox']
+  })
+    .then(data => {
+      const base64 = Buffer.from(data).toString('base64');
+      res.json({ image: `data:image/png;base64,${base64}` });
+    })
+    .catch(err => {
+      console.error('Error generating image:', err);
+      res.status(500).json({ error: 'Error generating image' });
     });
-    const data = await nodeHtmlToImage({ html, puppeteer: browser });
-    const base64 = Buffer.from(data).toString('base64');
-    res.json({ image: `data:image/png;base64,${base64}` });
-    await browser.close();
-  } catch (err) {
-    console.error('Error generating image:', err);
-    res.status(500).json({ error: 'Error generating image' });
-  }
 });
 
 // ===== ROTA DE LOGIN =====
