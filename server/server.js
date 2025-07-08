@@ -970,7 +970,7 @@ app.post('/api/orcamento-png', async (req, res) => {
     </div>
   `;
 
-  nodeHtmlToImage({ html })
+  nodeHtmlToImage({ html, puppeteerArgs: ['--no-sandbox', '--disable-setuid-sandbox'] })
     .then(data => {
       // Retornar como base64 em JSON
       const base64 = Buffer.from(data).toString('base64');
