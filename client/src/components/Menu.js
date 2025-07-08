@@ -39,6 +39,14 @@ function Menu() {
       ]
     },
     {
+      id: 'pipeline',
+      label: 'Pipeline',
+      icon: '📊',
+      items: [
+        { path: '/pipeline', label: 'Kanban de Orçamentos', icon: '🗂️' }
+      ]
+    },
+    {
       id: 'configuracoes',
       label: 'Configurações',
       icon: '⚙️',
