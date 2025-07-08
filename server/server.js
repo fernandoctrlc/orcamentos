@@ -5,6 +5,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const nodeHtmlToImage = require('node-html-to-image');
 const fs = require('fs');
+const puppeteer = require('puppeteer');
 
 const app = express();
 const PORT = 3001;
@@ -970,16 +971,18 @@ app.post('/api/orcamento-png', async (req, res) => {
     </div>
   `;
 
-  nodeHtmlToImage({ html, puppeteerArgs: ['--no-sandbox', '--disable-setuid-sandbox'] })
-    .then(data => {
-      // Retornar como base64 em JSON
-      const base64 = Buffer.from(data).toString('base64');
-      res.json({ image: `data:image/png;base64,${base64}` });
-    })
-    .catch(err => {
-      console.error('Error generating image:', err);
-      res.status(500).json({ error: 'Error generating image' });
+  try {
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
+    const data = await nodeHtmlToImage({ html, puppeteer: browser });
+    const base64 = Buffer.from(data).toString('base64');
+    res.json({ image: `data:image/png;base64,${base64}` });
+    await browser.close();
+  } catch (err) {
+    console.error('Error generating image:', err);
+    res.status(500).json({ error: 'Error generating image' });
+  }
 });
 
 // ===== ROTA DE LOGIN =====
