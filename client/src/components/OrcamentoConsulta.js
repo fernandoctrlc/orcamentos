@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './OrcamentoConsulta.css';
+import html2canvas from 'html2canvas';
 
 function OrcamentoConsulta() {
   const [orcamentos, setOrcamentos] = useState([]);
@@ -8,6 +9,7 @@ function OrcamentoConsulta() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [gerandoPng, setGerandoPng] = useState(false);
+  const detalhesRef = useRef();
 
   useEffect(() => {
     carregarOrcamentos();
@@ -48,48 +50,11 @@ function OrcamentoConsulta() {
     if (!orcamentoSelecionado) return;
     setGerandoPng(true);
     try {
-      // Buscar detalhes da tabela de preço
-      const respTabela = await fetch(`/api/precos/${orcamentoSelecionado.tabela_preco_id}`);
-      const tabela = await respTabela.json();
-      const tabelaDescricao = tabela && tabela.cidade_nome ? `${tabela.cidade_nome} - ${tabela.tipo_coparticipacao} - ${tabela.acomodacao_nome} - ${tabela.modalidade_nome} (${tabela.validade_inicio} a ${tabela.validade_fim})` : '';
-      // Montar idadesValores
-      const idadesValores = orcamentoSelecionado.idades.map(idade => {
-        let faixa = '';
-        if (idade <= 18) faixa = 'valor_00_18';
-        else if (idade <= 23) faixa = 'valor_19_23';
-        else if (idade <= 28) faixa = 'valor_24_28';
-        else if (idade <= 33) faixa = 'valor_29_33';
-        else if (idade <= 38) faixa = 'valor_34_38';
-        else if (idade <= 43) faixa = 'valor_39_43';
-        else if (idade <= 48) faixa = 'valor_44_48';
-        else if (idade <= 53) faixa = 'valor_49_53';
-        else if (idade <= 58) faixa = 'valor_54_58';
-        else faixa = 'valor_59_mais';
-        return {
-          idade,
-          valor: (tabela && tabela[faixa]) ? Number(tabela[faixa]).toFixed(2).replace('.', ',') : '0,00'
-        };
-      });
-      // Chamar endpoint para gerar imagem
-      const vendedorNome = localStorage.getItem('corretorNome');
-      const vendedorTelefone = localStorage.getItem('corretorTelefone');
-      const respPng = await fetch('/api/orcamento-png', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: orcamentoSelecionado.nome,
-          telefone: orcamentoSelecionado.telefone,
-          tabela: tabelaDescricao,
-          idadesValores,
-          vendedor_nome: vendedorNome,
-          vendedor_telefone: vendedorTelefone,
-          tabela_preco_id: orcamentoSelecionado.tabela_preco_id
-        })
-      });
-      const resPng = await respPng.json();
-      if (resPng.image) {
+      if (detalhesRef.current) {
+        const canvas = await html2canvas(detalhesRef.current);
+        const image = canvas.toDataURL('image/png');
         const link = document.createElement('a');
-        link.href = resPng.image;
+        link.href = image;
         link.download = `orcamento_${orcamentoSelecionado.nome.replace(/\s+/g, '_')}.png`;
         link.click();
       }
@@ -134,7 +99,7 @@ function OrcamentoConsulta() {
       </div>
       {orcamentoSelecionado && (
         <div className="orcamento-modal" onClick={() => setOrcamentoSelecionado(null)}>
-          <div className="orcamento-modal-content" onClick={e => e.stopPropagation()}>
+          <div className="orcamento-modal-content" onClick={e => e.stopPropagation()} ref={detalhesRef}>
             <button className="btn-close" onClick={() => setOrcamentoSelecionado(null)}>Fechar</button>
             <h3>Detalhes do Orçamento #{orcamentoSelecionado.id}</h3>
             <p><strong>Nome:</strong> {orcamentoSelecionado.nome}</p>

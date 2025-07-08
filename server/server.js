@@ -3,9 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const nodeHtmlToImage = require('node-html-to-image');
 const fs = require('fs');
-const puppeteer = require('puppeteer');
 
 const app = express();
 const PORT = 3001;
@@ -609,25 +607,14 @@ app.delete('/api/operadoras/:id', (req, res) => {
   });
 });
 
-// ===== ROTAS PARA TABELA DE PREÇOS =====
+// ===== ROTAS PARA PREÇOS =====
 // Cadastrar preço
 app.post('/api/precos', (req, res) => {
-  const {
-    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
-    validade_inicio, validade_fim,
-    valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38,
-    valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
-  } = req.body;
-
+  const { cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim, valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais } = req.body;
   if (!cidade_id || !operadora_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
     return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
   }
-
-  const sql = `INSERT INTO precos (
-    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
-    valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
+  const sql = `INSERT INTO precos (cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim, valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   db.run(sql, [
     cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
     valor_00_18 ? parseFloat(valor_00_18) : null,
@@ -859,131 +846,6 @@ app.delete('/api/orcamentos/:id', (req, res) => {
     }
     res.json({ message: 'Orçamento deletado com sucesso!' });
   });
-});
-
-// Endpoint para gerar orçamento em PNG
-app.post('/api/orcamento-png', async (req, res) => {
-  const { nome, telefone, tabela, idadesValores, vendedor_nome, vendedor_telefone, tabela_preco_id } = req.body;
-
-  // Carregar logo base64 do arquivo
-  let logoBase64 = '';
-  try {
-    logoBase64 = fs.readFileSync(path.join(__dirname, '../logo_base64.txt'), 'utf8').replace(/(\r\n|\n|\r)/gm, '');
-  } catch (e) {
-    logoBase64 = '';
-  }
-
-  // Calcular o total
-  let total = 0;
-  if (Array.isArray(idadesValores)) {
-    total = idadesValores.reduce((acc, item) => {
-      let valor = item.valor;
-      if (typeof valor === 'string') valor = parseFloat(valor.replace(',', '.'));
-      return acc + (isNaN(valor) ? 0 : valor);
-    }, 0);
-  }
-
-  // Buscar coparticipações da cidade vinculada à tabela de preço
-  let coparticipacoesHtml = '';
-  if (tabela_preco_id) {
-    try {
-      // Buscar tabela de preço
-      const tabelaPreco = await new Promise((resolve, reject) => {
-        db.get('SELECT * FROM precos WHERE id = ?', [tabela_preco_id], (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        });
-      });
-      if (tabelaPreco && tabelaPreco.cidade_id) {
-        // Buscar cidade vinculada
-        const cidade = await new Promise((resolve, reject) => {
-          db.get('SELECT * FROM cidades WHERE id = ?', [tabelaPreco.cidade_id], (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-          });
-        });
-        if (cidade) {
-          coparticipacoesHtml = `
-            <div style='margin: 24px 0 0 0; padding: 16px; background: #f4f7fa; border-radius: 10px; border: 1.5px solid #1976d2;'>
-              <h3 style='color:#1976d2; margin:0 0 8px 0; font-size:18px;'>Coparticipações da Cidade (${cidade.nome} - ${cidade.estado})</h3>
-              <ul style='list-style:none; padding:0; margin:0; font-size:15px;'>
-                <li><strong>Consultas Eletivas:</strong> R$ ${cidade.consultas_eletivas ? Number(cidade.consultas_eletivas).toFixed(2).replace('.', ',') : '-'}</li>
-                <li><strong>Consultas Urgências:</strong> R$ ${cidade.consultas_urgencias ? Number(cidade.consultas_urgencias).toFixed(2).replace('.', ',') : '-'}</li>
-                <li><strong>Exames Simples:</strong> R$ ${cidade.exames_simples ? Number(cidade.exames_simples).toFixed(2).replace('.', ',') : '-'}</li>
-                <li><strong>Exames Complexos:</strong> R$ ${cidade.exames_complexos ? Number(cidade.exames_complexos).toFixed(2).replace('.', ',') : '-'}</li>
-                <li><strong>Terapias Especiais:</strong> R$ ${cidade.terapias_especiais ? Number(cidade.terapias_especiais).toFixed(2).replace('.', ',') : '-'}</li>
-                <li><strong>Demais Terapias:</strong> R$ ${cidade.demais_terapias ? Number(cidade.demais_terapias).toFixed(2).replace('.', ',') : '-'}</li>
-              </ul>
-            </div>
-          `;
-        }
-      }
-    } catch (err) {
-      // Se der erro, não exibe coparticipações
-      coparticipacoesHtml = '';
-    }
-  }
-
-  const html = `
-    <div style="background: #fff; padding: 0; margin: 0;">
-      <div style="font-family: 'Segoe UI', Arial, sans-serif; background: #f9f9f9; padding: 32px 24px; border-radius: 16px; border: 2px solid #1976d2; width: 520px; box-shadow: 0 4px 16px rgba(25,118,210,0.08); margin: 5mm auto; display: block;">
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <img src="data:image/png;base64,${logoBase64}" alt="Logo" style="max-width: 220px; max-height: 120px; margin-bottom: 8px;" />
-        </div>
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <h3 style='color:#1976d2; margin:0 0 8px 0; font-size:18px;'>Orçamento para ${nome}</h3>
-        </div>
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <strong>Vendedor:</strong> ${vendedor_nome}
-        </div>
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <strong>Telefone:</strong> ${vendedor_telefone}
-        </div>
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <strong>Data:</strong> ${new Date().toLocaleString()}
-        </div>
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <strong>Tabela de Preço:</strong> ${tabela}
-        </div>
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <table style="margin: 0 auto; border-collapse: collapse; font-size: 15px;">
-            <thead>
-              <tr>
-                <th style="border: 1px solid #1976d2; padding: 4px 12px; background: #e3eafc;">Idade</th>
-                <th style="border: 1px solid #1976d2; padding: 4px 12px; background: #e3eafc;">Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${(Array.isArray(idadesValores) && idadesValores.length > 0) ? idadesValores.map(item => `
-                <tr>
-                  <td style="border: 1px solid #1976d2; padding: 4px 12px;">${item.idade}</td>
-                  <td style="border: 1px solid #1976d2; padding: 4px 12px;">R$ ${item.valor}</td>
-                </tr>
-              `).join('') : '<tr><td colspan="2">-</td></tr>'}
-            </tbody>
-          </table>
-        </div>
-        <div style='text-align:center; margin-bottom: 16px;'>
-          <strong>Total:</strong> R$ ${total.toFixed(2).replace('.', ',')}
-        </div>
-        ${coparticipacoesHtml}
-      </div>
-    </div>
-  `;
-
-  nodeHtmlToImage({
-    html,
-    puppeteer,
-    puppeteerArgs: ['--no-sandbox', '--disable-setuid-sandbox']
-  })
-    .then(data => {
-      const base64 = Buffer.from(data).toString('base64');
-      res.json({ image: `data:image/png;base64,${base64}` });
-    })
-    .catch(err => {
-      console.error('Error generating image:', err);
-      res.status(500).json({ error: 'Error generating image' });
-    });
 });
 
 // ===== ROTA DE LOGIN =====
