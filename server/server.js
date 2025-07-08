@@ -83,6 +83,7 @@ db.serialize(() => {
     tipo_coparticipacao TEXT NOT NULL CHECK(tipo_coparticipacao IN ('Com Coparticipação', 'Coparticipação Parcial')),
     acomodacao_id INTEGER NOT NULL,
     modalidade_id INTEGER NOT NULL,
+    tipo_documento TEXT NOT NULL CHECK(tipo_documento IN ('CPF', 'CNPJ')) DEFAULT 'CPF',
     validade_inicio TEXT NOT NULL,
     validade_fim TEXT NOT NULL,
     valor_00_18 DECIMAL(10,2),
@@ -108,6 +109,7 @@ db.serialize(() => {
     tabela_preco_id INTEGER NOT NULL,
     nome TEXT NOT NULL,
     telefone TEXT NOT NULL,
+    tipo_documento TEXT NOT NULL CHECK(tipo_documento IN ('CPF', 'CNPJ')) DEFAULT 'CPF',
     idades TEXT NOT NULL, -- JSON string
     valor_total DECIMAL(10,2) NOT NULL,
     data_orcamento TEXT NOT NULL,
@@ -610,13 +612,13 @@ app.delete('/api/operadoras/:id', (req, res) => {
 // ===== ROTAS PARA PREÇOS =====
 // Cadastrar preço
 app.post('/api/precos', (req, res) => {
-  const { cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim, valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais } = req.body;
-  if (!cidade_id || !operadora_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
+  const { cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, tipo_documento, validade_inicio, validade_fim, valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais } = req.body;
+  if (!cidade_id || !operadora_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !tipo_documento || !validade_inicio || !validade_fim) {
     return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
   }
-  const sql = `INSERT INTO precos (cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim, valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `INSERT INTO precos (cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, tipo_documento, validade_inicio, validade_fim, valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38, valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   db.run(sql, [
-    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, tipo_documento, validade_inicio, validade_fim,
     valor_00_18 ? parseFloat(valor_00_18) : null,
     valor_19_23 ? parseFloat(valor_19_23) : null,
     valor_24_28 ? parseFloat(valor_24_28) : null,
@@ -637,14 +639,34 @@ app.post('/api/precos', (req, res) => {
 
 // Listar preços
 app.get('/api/precos', (req, res) => {
-  const sql = `SELECT p.*, c.nome as cidade_nome, o.nome_completo as operadora_nome, a.nome as acomodacao_nome, m.nome as modalidade_nome
+  const { tipo_documento, cidade_id } = req.query;
+  
+  let sql = `SELECT p.*, c.nome as cidade_nome, o.nome_completo as operadora_nome, a.nome as acomodacao_nome, m.nome as modalidade_nome
     FROM precos p
     JOIN cidades c ON p.cidade_id = c.id
     JOIN operadoras o ON p.operadora_id = o.id
     JOIN acomodacoes a ON p.acomodacao_id = a.id
-    JOIN modalidades m ON p.modalidade_id = m.id
-    ORDER BY c.nome, o.nome_completo, m.nome, a.nome, validade_inicio`;
-  db.all(sql, [], (err, rows) => {
+    JOIN modalidades m ON p.modalidade_id = m.id`;
+  let params = [];
+  let conditions = [];
+  
+  if (tipo_documento) {
+    conditions.push('p.tipo_documento = ?');
+    params.push(tipo_documento);
+  }
+  
+  if (cidade_id) {
+    conditions.push('p.cidade_id = ?');
+    params.push(cidade_id);
+  }
+  
+  if (conditions.length > 0) {
+    sql += ' WHERE ' + conditions.join(' AND ');
+  }
+  
+  sql += ' ORDER BY c.nome, o.nome_completo, m.nome, a.nome, validade_inicio';
+  
+  db.all(sql, params, (err, rows) => {
     if (err) {
       return res.status(500).json({ error: 'Erro ao buscar preços' });
     }
@@ -671,21 +693,21 @@ app.get('/api/precos/:id', (req, res) => {
 app.put('/api/precos/:id', (req, res) => {
   const { id } = req.params;
   const {
-    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, tipo_documento,
     validade_inicio, validade_fim,
     valor_00_18, valor_19_23, valor_24_28, valor_29_33, valor_34_38,
     valor_39_43, valor_44_48, valor_49_53, valor_54_58, valor_59_mais
   } = req.body;
 
-  if (!cidade_id || !operadora_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !validade_inicio || !validade_fim) {
+  if (!cidade_id || !operadora_id || !tipo_coparticipacao || !acomodacao_id || !modalidade_id || !tipo_documento || !validade_inicio || !validade_fim) {
     return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
   }
 
-  const sql = `UPDATE precos SET cidade_id = ?, operadora_id = ?, tipo_coparticipacao = ?, acomodacao_id = ?, modalidade_id = ?, validade_inicio = ?, validade_fim = ?,
+  const sql = `UPDATE precos SET cidade_id = ?, operadora_id = ?, tipo_coparticipacao = ?, acomodacao_id = ?, modalidade_id = ?, tipo_documento = ?, validade_inicio = ?, validade_fim = ?,
     valor_00_18 = ?, valor_19_23 = ?, valor_24_28 = ?, valor_29_33 = ?, valor_34_38 = ?, valor_39_43 = ?, valor_44_48 = ?, valor_49_53 = ?, valor_54_58 = ?, valor_59_mais = ?
     WHERE id = ?`;
   db.run(sql, [
-    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, validade_inicio, validade_fim,
+    cidade_id, operadora_id, tipo_coparticipacao, acomodacao_id, modalidade_id, tipo_documento, validade_inicio, validade_fim,
     valor_00_18 ? parseFloat(valor_00_18) : null,
     valor_19_23 ? parseFloat(valor_19_23) : null,
     valor_24_28 ? parseFloat(valor_24_28) : null,
@@ -726,8 +748,8 @@ app.delete('/api/precos/:id', (req, res) => {
 // ===== ROTAS PARA ORÇAMENTOS =====
 // Cadastrar orçamento
 app.post('/api/orcamentos', (req, res) => {
-  const { tabela_preco_id, nome, telefone, idades, corretor_id } = req.body;
-  if (!tabela_preco_id || !nome || !telefone || !idades || !Array.isArray(idades) || idades.length === 0 || !corretor_id || isNaN(Number(corretor_id))) {
+  const { tabela_preco_id, nome, telefone, tipo_documento, idades, corretor_id } = req.body;
+  if (!tabela_preco_id || !nome || !telefone || !tipo_documento || !idades || !Array.isArray(idades) || idades.length === 0 || !corretor_id || isNaN(Number(corretor_id))) {
     return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos e pelo menos uma idade deve ser informada.' });
   }
 
@@ -753,11 +775,12 @@ app.post('/api/orcamentos', (req, res) => {
       valor_total += Number(tabela[faixa] || 0);
     });
     const data_orcamento = new Date().toISOString().split('T')[0];
-    const sql = `INSERT INTO orcamentos (tabela_preco_id, nome, telefone, idades, valor_total, data_orcamento, corretor_id, estagio, observacoes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO orcamentos (tabela_preco_id, nome, telefone, tipo_documento, idades, valor_total, data_orcamento, corretor_id, estagio, observacoes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     db.run(sql, [
       tabela_preco_id,
       nome.trim(),
       telefone.trim(),
+      tipo_documento,
       JSON.stringify(idades),
       valor_total,
       data_orcamento,

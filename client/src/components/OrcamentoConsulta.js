@@ -104,6 +104,7 @@ function OrcamentoConsulta() {
             <h3>Detalhes do Orçamento #{orcamentoSelecionado.id}</h3>
             <p><strong>Nome:</strong> {orcamentoSelecionado.nome}</p>
             <p><strong>Telefone:</strong> {orcamentoSelecionado.telefone}</p>
+            <p><strong>Tipo de Documento:</strong> {orcamentoSelecionado.tipo_documento || 'CPF'}</p>
             <p><strong>Data:</strong> {orcamentoSelecionado.data_orcamento}</p>
             <p><strong>Valor Total:</strong> {formatarValor(orcamentoSelecionado.valor_total)}</p>
             <p><strong>Idades:</strong> {orcamentoSelecionado.idades.join(', ')}</p>

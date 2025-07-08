@@ -26,6 +26,7 @@ function TabelasDePreco() {
     tipo_coparticipacao: 'Com Coparticipação',
     acomodacao_id: '',
     modalidade_id: '',
+    tipo_documento: 'CPF',
     validade_inicio: '',
     validade_fim: '',
     valor_00_18: '',
@@ -111,7 +112,7 @@ function TabelasDePreco() {
       if (response.ok) {
         setMessage(data.message);
         setFormData({
-          cidade_id: '', operadora_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
+          cidade_id: '', operadora_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', tipo_documento: 'CPF', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
         });
         setEditingId(null);
         carregarPrecos();
@@ -131,6 +132,7 @@ function TabelasDePreco() {
       tipo_coparticipacao: preco.tipo_coparticipacao,
       acomodacao_id: preco.acomodacao_id,
       modalidade_id: preco.modalidade_id,
+      tipo_documento: preco.tipo_documento || 'CPF',
       validade_inicio: preco.validade_inicio,
       validade_fim: preco.validade_fim,
       valor_00_18: preco.valor_00_18 || '',
@@ -168,7 +170,7 @@ function TabelasDePreco() {
 
   const handleCancel = () => {
     setFormData({
-      cidade_id: '', operadora_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
+      cidade_id: '', operadora_id: '', tipo_coparticipacao: 'Com Coparticipação', acomodacao_id: '', modalidade_id: '', tipo_documento: 'CPF', validade_inicio: '', validade_fim: '', valor_00_18: '', valor_19_23: '', valor_24_28: '', valor_29_33: '', valor_34_38: '', valor_39_43: '', valor_44_48: '', valor_49_53: '', valor_54_58: '', valor_59_mais: ''
     });
     setEditingId(null);
     setMessage('');
@@ -229,6 +231,13 @@ function TabelasDePreco() {
           </div>
           <div className="form-row">
             <div className="form-group">
+              <label htmlFor="tipo_documento">Tipo de Documento:</label>
+              <select id="tipo_documento" value={formData.tipo_documento} onChange={e => setFormData({ ...formData, tipo_documento: e.target.value })} required>
+                <option value="CPF">CPF</option>
+                <option value="CNPJ">CNPJ</option>
+              </select>
+            </div>
+            <div className="form-group">
               <label htmlFor="validade_inicio">Validade Início:</label>
               <input type="date" id="validade_inicio" value={formData.validade_inicio} onChange={e => setFormData({ ...formData, validade_inicio: e.target.value })} required />
             </div>
@@ -275,6 +284,7 @@ function TabelasDePreco() {
                 <div className="preco-info">
                   <span className="preco-id">#{preco.id}</span>
                   <h4>{preco.cidade_nome} - {preco.tipo_coparticipacao} - {preco.acomodacao_nome} - {preco.modalidade_nome}</h4>
+                  <p className="tipo-documento">Tipo: {preco.tipo_documento || 'CPF'}</p>
                   <p className="validade">Validade: {preco.validade_inicio} a {preco.validade_fim}</p>
                   <div className="faixas-list">
                     {faixas.map(faixa => (
