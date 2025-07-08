@@ -49,6 +49,9 @@ function App() {
           } />
         </Routes>
       </div>
+      <footer style={{position: 'fixed', left: 0, bottom: 0, width: '100%', background: '#222', color: '#fff', padding: '6px 16px', fontSize: '14px', zIndex: 999, textAlign: 'left'}}>
+        Sistema de Orçamentos - v1.0.0
+      </footer>
     </Router>
   );
 }
