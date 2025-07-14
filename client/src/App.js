@@ -14,6 +14,7 @@ import OrcamentoConsulta from './components/OrcamentoConsulta';
 import Login from './components/Login';
 import PipelineKanban from './components/PipelineKanban';
 import Personalizacao from './components/Personalizacao';
+import Dashboard from './components/Dashboard';
 
 function PrivateRoute({ children }) {
   const isAuth = localStorage.getItem('authToken') === 'admin-token';
@@ -31,7 +32,7 @@ function App() {
               <Menu />
               <div className="main-content">
                 <Routes>
-                  <Route path="/" element={<Navigate to="/corretores" replace />} />
+                  <Route path="/" element={<Dashboard />} />
                   <Route path="/corretores" element={<CadastroCorretor />} />
                   <Route path="/corretores/lista" element={<ListaCorretores />} />
                   <Route path="/cidades" element={<Cidades />} />
