@@ -52,7 +52,8 @@ function Menu() {
       icon: '⚙️',
       items: [
         { path: '/configuracoes/integracoes', label: 'Integrações', icon: '🔗' },
-        { path: '/configuracoes/alertas', label: 'Alertas', icon: '🔔' }
+        { path: '/configuracoes/alertas', label: 'Alertas', icon: '🔔' },
+        { path: '/configuracoes/personalizacao', label: 'Personalização', icon: '🎨' }
       ]
     }
   ];

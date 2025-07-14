@@ -641,7 +641,7 @@ app.post('/api/precos', (req, res) => {
 app.get('/api/precos', (req, res) => {
   const { tipo_documento, cidade_id } = req.query;
   
-  let sql = `SELECT p.*, c.nome as cidade_nome, o.nome_completo as operadora_nome, a.nome as acomodacao_nome, m.nome as modalidade_nome
+  let sql = `SELECT p.*, c.nome as cidade_nome, c.estado as estado, c.consultas_eletivas, c.consultas_urgencias, c.exames_simples, c.exames_complexos, c.terapias_especiais, c.demais_terapias, o.nome_completo as operadora_nome, a.nome as acomodacao_nome, m.nome as modalidade_nome
     FROM precos p
     JOIN cidades c ON p.cidade_id = c.id
     JOIN operadoras o ON p.operadora_id = o.id

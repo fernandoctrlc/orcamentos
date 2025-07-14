@@ -13,6 +13,7 @@ import OrcamentoCadastro from './components/OrcamentoCadastro';
 import OrcamentoConsulta from './components/OrcamentoConsulta';
 import Login from './components/Login';
 import PipelineKanban from './components/PipelineKanban';
+import Personalizacao from './components/Personalizacao';
 
 function PrivateRoute({ children }) {
   const isAuth = localStorage.getItem('authToken') === 'admin-token';
@@ -43,6 +44,7 @@ function App() {
                   <Route path="/pipeline" element={<PipelineKanban />} />
                   <Route path="/configuracoes/integracoes" element={<div style={{padding:32}}><h2>Integrações</h2><p>Página de integrações.</p></div>} />
                   <Route path="/configuracoes/alertas" element={<div style={{padding:32}}><h2>Alertas</h2><p>Página de alertas.</p></div>} />
+                  <Route path="/configuracoes/personalizacao" element={<Personalizacao />} />
                 </Routes>
               </div>
             </PrivateRoute>
