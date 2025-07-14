@@ -250,6 +250,7 @@ function OrcamentoCadastro() {
         setIdades([]);
         setFaixas({});
         setValorTotal(0);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo
       } else {
         setMessage(data.error);
       }
