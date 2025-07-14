@@ -124,7 +124,23 @@ function OrcamentoCadastro() {
         z-index: -1;
       `;
 
-      const tabela = tabelas.find(t => String(t.id) === String(formData.tabela_preco_id));
+      let tabela = tabelas.find(t => String(t.id) === String(formData.tabela_preco_id));
+      // Se faltar algum campo de coparticipação, buscar na cidade correspondente
+      if (tabela && (!('consultas_eletivas' in tabela))) {
+        const cidade = cidades.find(c => String(c.id) === String(tabela.cidade_id));
+        if (cidade) {
+          tabela = {
+            ...tabela,
+            consultas_eletivas: cidade.consultas_eletivas,
+            consultas_urgencias: cidade.consultas_urgencias,
+            exames_simples: cidade.exames_simples,
+            exames_complexos: cidade.exames_complexos,
+            terapias_especiais: cidade.terapias_especiais,
+            demais_terapias: cidade.demais_terapias,
+            estado: cidade.estado
+          };
+        }
+      }
       const vendedorNome = localStorage.getItem('corretorNome');
       const vendedorTelefone = localStorage.getItem('corretorTelefone');
       // Coparticipações da cidade
