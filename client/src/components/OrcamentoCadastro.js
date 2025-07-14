@@ -127,73 +127,71 @@ function OrcamentoCadastro() {
       const tabela = tabelas.find(t => String(t.id) === String(formData.tabela_preco_id));
       const vendedorNome = localStorage.getItem('corretorNome');
       const vendedorTelefone = localStorage.getItem('corretorTelefone');
-
+      // Coparticipações da cidade
+      let copart = '';
+      if (tabela) {
+        copart = `
+          <div style="margin-top: 30px; border: 2px solid #2196f3; border-radius: 12px; padding: 18px 20px; background: #fafdff;">
+            <h3 style="color: #1976d2; margin: 0 0 12px 0; font-size: 1.15rem;">Coparticipações da Cidade (${tabela.cidade_nome ? tabela.cidade_nome.toUpperCase() : ''} - ${tabela.estado || ''})</h3>
+            <div style="font-size: 1.05rem;">
+              <b>Consultas Eletivas:</b> R$ ${tabela.consultas_eletivas ? Number(tabela.consultas_eletivas).toFixed(2).replace('.', ',') : '--'}<br/>
+              <b>Consultas Urgências:</b> R$ ${tabela.consultas_urgencias ? Number(tabela.consultas_urgencias).toFixed(2).replace('.', ',') : '--'}<br/>
+              <b>Exames Simples:</b> R$ ${tabela.exames_simples ? Number(tabela.exames_simples).toFixed(2).replace('.', ',') : '--'}<br/>
+              <b>Exames Complexos:</b> R$ ${tabela.exames_complexos ? Number(tabela.exames_complexos).toFixed(2).replace('.', ',') : '--'}<br/>
+              <b>Terapias Especiais:</b> R$ ${tabela.terapias_especiais ? Number(tabela.terapias_especiais).toFixed(2).replace('.', ',') : '--'}<br/>
+              <b>Demais Terapias:</b> R$ ${tabela.demais_terapias ? Number(tabela.demais_terapias).toFixed(2).replace('.', ',') : '--'}
+            </div>
+          </div>
+        `;
+      }
       orcamentoDiv.innerHTML = `
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #2c3e50; margin: 0;">ORÇAMENTO</h1>
-          <hr style="border: 2px solid #3498db; margin: 10px 0;">
-        </div>
-        
-        <div style="margin-bottom: 20px;">
-          <h3 style="color: #2c3e50; margin: 0 0 10px 0;">Dados do Cliente</h3>
-          <p style="margin: 5px 0;"><strong>Nome:</strong> ${formData.nome}</p>
-          <p style="margin: 5px 0;"><strong>Telefone:</strong> ${formData.telefone}</p>
-          <p style="margin: 5px 0;"><strong>Tipo de Documento:</strong> ${formData.tipo_documento}</p>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <h3 style="color: #2c3e50; margin: 0 0 10px 0;">Plano Selecionado</h3>
-          <p style="margin: 5px 0;"><strong>Cidade:</strong> ${tabela?.cidade_nome || ''}</p>
-          <p style="margin: 5px 0;"><strong>Operadora:</strong> ${tabela?.operadora_nome || ''}</p>
-          <p style="margin: 5px 0;"><strong>Tipo de Coparticipação:</strong> ${tabela?.tipo_coparticipacao || ''}</p>
-          <p style="margin: 5px 0;"><strong>Acomodação:</strong> ${tabela?.acomodacao_nome || ''}</p>
-          <p style="margin: 5px 0;"><strong>Modalidade:</strong> ${tabela?.modalidade_nome || ''}</p>
-          <p style="margin: 5px 0;"><strong>Validade:</strong> ${tabela?.validade_inicio || ''} a ${tabela?.validade_fim || ''}</p>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <h3 style="color: #2c3e50; margin: 0 0 10px 0;">Valores por Idade</h3>
-          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-            <thead>
-              <tr style="background: #3498db; color: white;">
-                <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Idade</th>
-                <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Valor</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${idades.map(idade => {
-                let faixa = '';
-                if (idade <= 18) faixa = 'valor_00_18';
-                else if (idade <= 23) faixa = 'valor_19_23';
-                else if (idade <= 28) faixa = 'valor_24_28';
-                else if (idade <= 33) faixa = 'valor_29_33';
-                else if (idade <= 38) faixa = 'valor_34_38';
-                else if (idade <= 43) faixa = 'valor_39_43';
-                else if (idade <= 48) faixa = 'valor_44_48';
-                else if (idade <= 53) faixa = 'valor_49_53';
-                else if (idade <= 58) faixa = 'valor_54_58';
-                else faixa = 'valor_59_mais';
-                const valor = tabela && tabela[faixa] ? Number(tabela[faixa]).toFixed(2).replace('.', ',') : '0,00';
-                return `
-                  <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${idade} anos</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">R$ ${valor}</td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-
-        <div style="margin-bottom: 20px; text-align: right;">
-          <h2 style="color: #e74c3c; margin: 0;">Valor Total: R$ ${valorTotal.toFixed(2).replace('.', ',')}</h2>
-        </div>
-
-        <div style="margin-top: 40px; border-top: 2px solid #333; padding-top: 20px;">
-          <h3 style="color: #2c3e50; margin: 0 0 10px 0;">Dados do Vendedor</h3>
-          <p style="margin: 5px 0;"><strong>Nome:</strong> ${vendedorNome || 'Não informado'}</p>
-          <p style="margin: 5px 0;"><strong>Telefone:</strong> ${vendedorTelefone || 'Não informado'}</p>
-          <p style="margin: 5px 0;"><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+        <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif;">
+          <div style="text-align: center; margin-bottom: 18px;">
+            <img src='/logov3.png' alt='Logo' style='max-width: 180px; margin-bottom: 10px;' />
+          </div>
+          <h2 style="color: #1976d2; text-align: center; margin: 0 0 18px 0; font-size: 1.3rem;">Orçamento para ${formData.nome || '---'}</h2>
+          <div style="margin-bottom: 10px; text-align: center;">
+            <b>Vendedor:</b> ${vendedorNome || '---'}<br/>
+            <b>Telefone:</b> ${vendedorTelefone || '---'}<br/>
+            <b>Data:</b> ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}<br/>
+          </div>
+          <div style="margin-bottom: 10px; text-align: center;">
+            <b>Tabela de Preço:</b> ${tabela?.cidade_nome || ''} - ${tabela?.tipo_coparticipacao || ''} - ${tabela?.acomodacao_nome || ''} - ${tabela?.modalidade_nome || ''} (${tabela?.validade_inicio || ''} a ${tabela?.validade_fim || ''})
+          </div>
+          <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+            <table style="border: 2px solid #1976d2; border-radius: 8px; border-collapse: separate; border-spacing: 0; min-width: 180px;">
+              <thead>
+                <tr style="background: #e3f2fd; color: #1976d2;">
+                  <th style="border: 1px solid #1976d2; padding: 6px 18px; text-align: center;">Idade</th>
+                  <th style="border: 1px solid #1976d2; padding: 6px 18px; text-align: center;">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${idades.map(idade => {
+                  let faixa = '';
+                  if (idade <= 18) faixa = 'valor_00_18';
+                  else if (idade <= 23) faixa = 'valor_19_23';
+                  else if (idade <= 28) faixa = 'valor_24_28';
+                  else if (idade <= 33) faixa = 'valor_29_33';
+                  else if (idade <= 38) faixa = 'valor_34_38';
+                  else if (idade <= 43) faixa = 'valor_39_43';
+                  else if (idade <= 48) faixa = 'valor_44_48';
+                  else if (idade <= 53) faixa = 'valor_49_53';
+                  else if (idade <= 58) faixa = 'valor_54_58';
+                  else faixa = 'valor_59_mais';
+                  const valor = tabela && tabela[faixa] ? Number(tabela[faixa]).toFixed(2).replace('.', ',') : '0,00';
+                  return `
+                    <tr>
+                      <td style=\"border: 1px solid #1976d2; padding: 6px 18px; text-align: center;\">${idade}</td>
+                      <td style=\"border: 1px solid #1976d2; padding: 6px 18px; text-align: center;\">R$ ${valor}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div style="text-align: center; font-size: 1.1rem; margin-bottom: 10px;"><b>Total:</b> R$ ${valorTotal.toFixed(2).replace('.', ',')}</div>
+          ${copart}
         </div>
       `;
 

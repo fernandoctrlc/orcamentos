@@ -176,6 +176,32 @@ function TabelasDePreco() {
     setMessage('');
   };
 
+  const handleCopy = (preco) => {
+    setFormData({
+      cidade_id: '', // Limpa o município para o usuário escolher outro
+      operadora_id: preco.operadora_id || '',
+      tipo_coparticipacao: preco.tipo_coparticipacao,
+      acomodacao_id: preco.acomodacao_id,
+      modalidade_id: preco.modalidade_id,
+      tipo_documento: preco.tipo_documento || 'CPF',
+      validade_inicio: preco.validade_inicio,
+      validade_fim: preco.validade_fim,
+      valor_00_18: preco.valor_00_18 || '',
+      valor_19_23: preco.valor_19_23 || '',
+      valor_24_28: preco.valor_24_28 || '',
+      valor_29_33: preco.valor_29_33 || '',
+      valor_34_38: preco.valor_34_38 || '',
+      valor_39_43: preco.valor_39_43 || '',
+      valor_44_48: preco.valor_44_48 || '',
+      valor_49_53: preco.valor_49_53 || '',
+      valor_54_58: preco.valor_54_58 || '',
+      valor_59_mais: preco.valor_59_mais || ''
+    });
+    setEditingId(null); // Garante que será um novo cadastro
+    setMessage('Tabela copiada! Escolha o município e salve para criar uma nova tabela.');
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo
+  };
+
   const formatarValor = (valor) => {
     if (!valor) return 'R$ 0,00';
     return `R$ ${parseFloat(valor).toFixed(2).replace('.', ',')}`;
@@ -297,6 +323,7 @@ function TabelasDePreco() {
                 <div className="preco-actions">
                   <button onClick={() => handleEdit(preco)} className="btn-edit" title="Editar">✏️</button>
                   <button onClick={() => handleDelete(preco.id)} className="btn-delete" title="Excluir">🗑️</button>
+                  <button onClick={() => handleCopy(preco)} className="btn-copy" title="Copiar para outro município">📋 Copiar</button>
                 </div>
               </div>
             ))}
