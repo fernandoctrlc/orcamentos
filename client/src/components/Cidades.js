@@ -203,20 +203,22 @@ function Cidades() {
             <div className="form-group">
               <label htmlFor="consultas_eletivas">Consultas Eletivas:</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 id="consultas_eletivas"
                 value={formData.consultas_eletivas}
-                onChange={(e) => setFormData({ ...formData, consultas_eletivas: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, consultas_eletivas: e.target.value.replace(',', '.') })}
                 placeholder="Consultas Eletivas"
               />
             </div>
             <div className="form-group">
               <label htmlFor="consultas_urgencias">Consultas Urgencias:</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 id="consultas_urgencias"
                 value={formData.consultas_urgencias}
-                onChange={(e) => setFormData({ ...formData, consultas_urgencias: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, consultas_urgencias: e.target.value.replace(',', '.') })}
                 placeholder="Consultas Urgencias"
               />
             </div>
@@ -225,20 +227,22 @@ function Cidades() {
             <div className="form-group">
               <label htmlFor="exames_simples">Exames Simples:</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 id="exames_simples"
                 value={formData.exames_simples}
-                onChange={(e) => setFormData({ ...formData, exames_simples: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, exames_simples: e.target.value.replace(',', '.') })}
                 placeholder="Exames Simples"
               />
             </div>
             <div className="form-group">
               <label htmlFor="exames_complexos">Exames Complexos:</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 id="exames_complexos"
                 value={formData.exames_complexos}
-                onChange={(e) => setFormData({ ...formData, exames_complexos: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, exames_complexos: e.target.value.replace(',', '.') })}
                 placeholder="Exames Complexos"
               />
             </div>
@@ -247,20 +251,22 @@ function Cidades() {
             <div className="form-group">
               <label htmlFor="terapias_especiais">Terapias Especiais:</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 id="terapias_especiais"
                 value={formData.terapias_especiais}
-                onChange={(e) => setFormData({ ...formData, terapias_especiais: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, terapias_especiais: e.target.value.replace(',', '.') })}
                 placeholder="Terapias Especiais"
               />
             </div>
             <div className="form-group">
               <label htmlFor="demais_terapias">Demais Terapias:</label>
               <input
-                type="text"
+                type="number"
+                step="0.01"
                 id="demais_terapias"
                 value={formData.demais_terapias}
-                onChange={(e) => setFormData({ ...formData, demais_terapias: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, demais_terapias: e.target.value.replace(',', '.') })}
                 placeholder="Demais Terapias"
               />
             </div>
