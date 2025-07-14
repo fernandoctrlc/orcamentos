@@ -43,9 +43,9 @@ function Login({ onLogin }) {
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <div className="login-logo">
-          <img src="/logov3.png" alt="Logo" />
+          <img src="/logov3.png" alt="Logo" style={{maxWidth:180, maxHeight:80, borderRadius:8, background:'#fff'}} />
         </div>
-        <h2>Login</h2>
+        <h2>Cotador V3 Corretora</h2>
         {error && <div className="login-error">{error}</div>}
         <div className="form-group">
           <label>CPF</label>

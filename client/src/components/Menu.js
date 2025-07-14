@@ -76,9 +76,9 @@ function Menu() {
     <nav className="menu">
       <div className="menu-header">
         <div className="menu-logo">
-          <img src="/logov3.png" alt="Logo" />
+          <img src="/logov3.png" alt="Logo" style={{maxWidth:120, maxHeight:60, borderRadius:8, background:'#fff'}} />
         </div>
-        <h1>Sistema de Orçamentos</h1>
+        <h1>Cotador V3 Corretora</h1>
         {corretorNome && (
           <div className="corretor-logado">
             <span>👤 {corretorNome}</span>
