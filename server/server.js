@@ -871,6 +871,25 @@ app.delete('/api/orcamentos/:id', (req, res) => {
   });
 });
 
+// Rota para dashboard: quantidade de orçamentos por estágio e mês
+app.get('/api/dashboard/pipeline-mensal', (req, res) => {
+  const sql = `
+    SELECT 
+      strftime('%Y-%m', data_orcamento) as mes,
+      estagio,
+      COUNT(*) as quantidade
+    FROM orcamentos
+    GROUP BY mes, estagio
+    ORDER BY mes DESC, estagio
+  `;
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar dados do dashboard' });
+    }
+    res.json({ dados: rows });
+  });
+});
+
 // ===== ROTA DE LOGIN =====
 app.post('/api/login', (req, res) => {
   const { cpf, senha } = req.body;
