@@ -123,6 +123,13 @@ db.serialize(() => {
     FOREIGN KEY (tabela_preco_id) REFERENCES precos(id),
     FOREIGN KEY (corretor_id) REFERENCES corretores(id)
   )`);
+
+  // Tabela de configuração global (logo do orçamento e logo do boleto)
+  db.run(`CREATE TABLE IF NOT EXISTS configuracoes (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    orcamento_logo_path TEXT,
+    boleto_logo_path TEXT
+  )`);
 });
 
 // Configuração do multer para salvar arquivos em 'uploads/'
@@ -150,7 +157,62 @@ app.post('/api/upload-logo', upload.single('logo'), (req, res) => {
   }
   // Caminho relativo para uso posterior
   const relativePath = path.relative(__dirname, req.file.path);
-  res.json({ message: 'Logo enviada com sucesso!', path: relativePath });
+
+  // Buscar logo anterior
+  db.get('SELECT orcamento_logo_path FROM configuracoes WHERE id = 1', (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar configuração anterior.' });
+    }
+    // Excluir arquivo anterior, se existir
+    if (row && row.orcamento_logo_path) {
+      const oldPath = path.join(__dirname, row.orcamento_logo_path);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+    // Atualizar ou inserir o novo caminho na configuração global
+    db.run('INSERT INTO configuracoes (id, orcamento_logo_path) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET orcamento_logo_path = excluded.orcamento_logo_path', [relativePath], (err2) => {
+      if (err2) {
+        return res.status(500).json({ error: 'Erro ao salvar caminho da logo.' });
+      }
+      res.json({ message: 'Logo enviada e configurada com sucesso!', path: relativePath });
+    });
+  });
+});
+
+// Rota para upload da logo do boleto (global)
+app.post('/api/upload-boleto-logo', upload.single('logo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+  }
+  const relativePath = path.relative(__dirname, req.file.path);
+  db.get('SELECT boleto_logo_path FROM configuracoes WHERE id = 1', (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar configuração anterior.' });
+    }
+    // Se não existe registro, cria
+    if (!row) {
+      db.run('INSERT INTO configuracoes (id, boleto_logo_path) VALUES (1, ?)', [relativePath], (err2) => {
+        if (err2) {
+          return res.status(500).json({ error: 'Erro ao criar configuração.' });
+        }
+        return res.json({ message: 'Logo do boleto enviada e configurada com sucesso!', path: relativePath });
+      });
+      return;
+    }
+    if (row.boleto_logo_path) {
+      const oldPath = path.join(__dirname, row.boleto_logo_path);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+    db.run('UPDATE configuracoes SET boleto_logo_path = ? WHERE id = 1', [relativePath], (err2) => {
+      if (err2) {
+        return res.status(500).json({ error: 'Erro ao salvar caminho da logo do boleto.' });
+      }
+      res.json({ message: 'Logo do boleto enviada e configurada com sucesso!', path: relativePath });
+    });
+  });
 });
 
 // Rota de teste
@@ -933,6 +995,26 @@ app.get('/api/dashboard/pipeline-mensal', (req, res) => {
       return res.status(500).json({ error: 'Erro ao buscar dados do dashboard' });
     }
     res.json({ dados: rows });
+  });
+});
+
+// Rota para buscar o caminho da logo do orçamento (global)
+app.get('/api/logo-orcamento', (req, res) => {
+  db.get('SELECT orcamento_logo_path FROM configuracoes WHERE id = 1', (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar logo do orçamento' });
+    }
+    res.json({ path: row && row.orcamento_logo_path ? row.orcamento_logo_path : null });
+  });
+});
+
+// Rota para buscar o caminho da logo do boleto (global)
+app.get('/api/logo-boleto', (req, res) => {
+  db.get('SELECT boleto_logo_path FROM configuracoes WHERE id = 1', (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar logo do boleto' });
+    }
+    res.json({ path: row && row.boleto_logo_path ? row.boleto_logo_path : null });
   });
 });
 
