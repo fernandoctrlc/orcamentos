@@ -9,6 +9,7 @@ function Menu() {
   // Recuperar nome e telefone do corretor logado
   const corretorNome = localStorage.getItem('corretorNome');
   const corretorTelefone = localStorage.getItem('corretorTelefone');
+  const tipoUsuario = localStorage.getItem('tipoUsuario') || 'usuario';
 
   // Personalização
   const appLogo = localStorage.getItem('appLogo');
@@ -62,6 +63,37 @@ function Menu() {
     }
   ];
 
+  // Restringir menu para BackOffice
+  const menuItemsFiltrados = tipoUsuario === 'backoffice'
+    ? [
+        {
+          id: 'orcamentos',
+          label: 'Orçamentos',
+          icon: '📝',
+          items: [
+            { path: '/orcamentos/cadastro', label: 'Cadastro de Orçamentos', icon: '➕' },
+            { path: '/orcamentos/consulta', label: 'Consulta de Orçamentos', icon: '🔎' }
+          ]
+        },
+        {
+          id: 'pipeline',
+          label: 'Pipeline',
+          icon: '📊',
+          items: [
+            { path: '/pipeline', label: 'Kanban de Orçamentos', icon: '🗂️' }
+          ]
+        },
+        {
+          id: 'cadastros',
+          label: 'Cadastros',
+          icon: '📋',
+          items: [
+            { path: '/corretores', label: 'Corretores', icon: '👥' }
+          ]
+        }
+      ]
+    : menuItems;
+
   const toggleDropdown = (dropdownId) => {
     setOpenDropdown(openDropdown === dropdownId ? null : dropdownId);
   };
@@ -94,7 +126,7 @@ function Menu() {
         )}
       </div>
       <ul className="menu-list">
-        {menuItems.map((item) => (
+        {menuItemsFiltrados.map((item) => (
           <li key={item.id} className={`menu-item ${isActive(item) ? 'active' : ''}`}>
             <div 
               className="menu-dropdown-header"

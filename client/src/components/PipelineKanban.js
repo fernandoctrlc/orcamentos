@@ -14,6 +14,10 @@ export default function PipelineKanban() {
   const [modal, setModal] = useState(null); // {orcamento, novaObs, novoEstagio}
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const tipoUsuario = localStorage.getItem('tipoUsuario') || 'usuario';
+
+  // Estágios permitidos para BackOffice
+  const ESTAGIOS_BACKOFFICE = ['fila', 'cadastrado'];
 
   useEffect(() => {
     carregarOrcamentos();
@@ -80,20 +84,23 @@ export default function PipelineKanban() {
       <h2>📊 Pipeline de Orçamentos</h2>
       {message && <div className="message error">{message}</div>}
       <div className="kanban-board">
-        {ESTAGIOS.map(estagio => (
-          <div key={estagio.key} className="kanban-column">
-            <div className="kanban-column-header">{estagio.label}</div>
-            <div className="kanban-cards">
-              {orcamentos.filter(o => (o.estagio || 'leads') === estagio.key).map(o => (
-                <div key={o.id} className="kanban-card" onClick={() => abrirModal(o)}>
-                  <div><strong>{o.nome}</strong></div>
-                  <div>Tel: {o.telefone}</div>
-                  <div>Valor: <strong>R$ {o.valor_total ? Number(o.valor_total).toFixed(2).replace('.', ',') : '0,00'}</strong></div>
-                </div>
-              ))}
+        {ESTAGIOS.map(estagio => {
+          if (tipoUsuario === 'backoffice' && !ESTAGIOS_BACKOFFICE.includes(estagio.key)) return null;
+          return (
+            <div key={estagio.key} className="kanban-column">
+              <div className="kanban-column-header">{estagio.label}</div>
+              <div className="kanban-cards">
+                {orcamentos.filter(o => (o.estagio || 'leads') === estagio.key).map(o => (
+                  <div key={o.id} className="kanban-card" onClick={() => abrirModal(o)}>
+                    <div><strong>{o.nome}</strong></div>
+                    <div>Tel: {o.telefone}</div>
+                    <div>Valor: <strong>R$ {o.valor_total ? Number(o.valor_total).toFixed(2).replace('.', ',') : '0,00'}</strong></div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       {modal && (
         <div className="kanban-modal-bg" onClick={fecharModal}>
@@ -104,8 +111,8 @@ export default function PipelineKanban() {
             <div><strong>Valor:</strong> R$ {modal.orcamento.valor_total ? Number(modal.orcamento.valor_total).toFixed(2).replace('.', ',') : '0,00'}</div>
             <div style={{margin:'16px 0'}}>
               <label><strong>Fase do Kanban:</strong></label><br/>
-              <select value={modal.novoEstagio} onChange={e => setModal(m => ({...m, novoEstagio: e.target.value}))}>
-                {ESTAGIOS.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
+              <select value={modal.novoEstagio} onChange={e => setModal(m => ({...m, novoEstagio: e.target.value}))} disabled={tipoUsuario === 'backoffice' && !ESTAGIOS_BACKOFFICE.includes(modal.novoEstagio)}>
+                {ESTAGIOS.filter(e => tipoUsuario !== 'backoffice' || ESTAGIOS_BACKOFFICE.includes(e.key)).map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
               </select>
             </div>
             <div style={{margin:'16px 0'}}>
@@ -129,7 +136,7 @@ export default function PipelineKanban() {
                 )}
               </div>
             </div>
-            <button className="kanban-modal-save" onClick={salvarAlteracoes} disabled={loading}>{loading ? 'Salvando...' : 'Salvar'}</button>
+            <button className="kanban-modal-save" onClick={salvarAlteracoes} disabled={loading || (tipoUsuario === 'backoffice' && !ESTAGIOS_BACKOFFICE.includes(modal.novoEstagio))}>{loading ? 'Salvando...' : 'Salvar'}</button>
           </div>
         </div>
       )}

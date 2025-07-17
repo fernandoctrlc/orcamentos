@@ -17,7 +17,8 @@ import Personalizacao from './components/Personalizacao';
 import Dashboard from './components/Dashboard';
 
 function PrivateRoute({ children }) {
-  const isAuth = localStorage.getItem('authToken') === 'admin-token';
+  // const isAuth = localStorage.getItem('authToken') === 'admin-token';
+  const isAuth = !!localStorage.getItem('authToken');
   return isAuth ? children : <Navigate to="/login" replace />;
 }
 
@@ -31,6 +32,7 @@ function TitleUpdater() {
 }
 
 function App() {
+  const tipoUsuario = localStorage.getItem('tipoUsuario') || 'usuario';
   return (
     <Router>
       <TitleUpdater />
@@ -42,20 +44,32 @@ function App() {
               <Menu />
               <div className="main-content">
                 <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/corretores" element={<CadastroCorretor />} />
-                  <Route path="/corretores/lista" element={<ListaCorretores />} />
-                  <Route path="/cidades" element={<Cidades />} />
-                  <Route path="/operadoras" element={<Operadoras />} />
-                  <Route path="/modalidades" element={<Modalidades />} />
-                  <Route path="/acomodacoes" element={<Acomodacoes />} />
-                  <Route path="/tabelas-preco" element={<TabelasDePreco />} />
-                  <Route path="/orcamentos/cadastro" element={<OrcamentoCadastro />} />
-                  <Route path="/orcamentos/consulta" element={<OrcamentoConsulta />} />
-                  <Route path="/pipeline" element={<PipelineKanban />} />
-                  <Route path="/configuracoes/integracoes" element={<div style={{padding:32}}><h2>Integrações</h2><p>Página de integrações.</p></div>} />
-                  <Route path="/configuracoes/alertas" element={<div style={{padding:32}}><h2>Alertas</h2><p>Página de alertas.</p></div>} />
-                  <Route path="/configuracoes/personalizacao" element={<Personalizacao />} />
+                  {tipoUsuario === 'backoffice' ? (
+                    <>
+                      <Route path="/pipeline" element={<PipelineKanban />} />
+                      <Route path="/orcamentos/cadastro" element={<OrcamentoCadastro />} />
+                      <Route path="/orcamentos/consulta" element={<OrcamentoConsulta />} />
+                      <Route path="/corretores" element={<CadastroCorretor />} />
+                      <Route path="*" element={<Navigate to="/pipeline" replace />} />
+                    </>
+                  ) : (
+                    <>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/corretores" element={<CadastroCorretor />} />
+                      <Route path="/corretores/lista" element={<ListaCorretores />} />
+                      <Route path="/cidades" element={<Cidades />} />
+                      <Route path="/operadoras" element={<Operadoras />} />
+                      <Route path="/modalidades" element={<Modalidades />} />
+                      <Route path="/acomodacoes" element={<Acomodacoes />} />
+                      <Route path="/tabelas-preco" element={<TabelasDePreco />} />
+                      <Route path="/orcamentos/cadastro" element={<OrcamentoCadastro />} />
+                      <Route path="/orcamentos/consulta" element={<OrcamentoConsulta />} />
+                      <Route path="/pipeline" element={<PipelineKanban />} />
+                      <Route path="/configuracoes/integracoes" element={<div style={{padding:32}}><h2>Integrações</h2><p>Página de integrações.</p></div>} />
+                      <Route path="/configuracoes/alertas" element={<div style={{padding:32}}><h2>Alertas</h2><p>Página de alertas.</p></div>} />
+                      <Route path="/configuracoes/personalizacao" element={<Personalizacao />} />
+                    </>
+                  )}
                 </Routes>
               </div>
             </PrivateRoute>
