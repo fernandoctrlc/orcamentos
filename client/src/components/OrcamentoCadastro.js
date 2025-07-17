@@ -125,6 +125,8 @@ function OrcamentoCadastro() {
 
   const gerarPngOrcamento = async () => {
     try {
+      // Buscar logo do boleto do localStorage
+      const boletoLogo = localStorage.getItem('boletoLogo');
       // Criar elemento temporário para o orçamento
       const orcamentoDiv = document.createElement('div');
       orcamentoDiv.style.cssText = `
@@ -178,53 +180,56 @@ function OrcamentoCadastro() {
         `;
       }
       orcamentoDiv.innerHTML = `
-        <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif;">
-          <div style="text-align: center; margin-bottom: 18px;">
-            <img src="${logoSrc}" alt='Logo' style="max-width:290px; max-height:230px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
+        <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif; position: relative; overflow: hidden;">
+          ${boletoLogo ? `<img src='${boletoLogo}' alt='Fundo Boleto' style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; opacity:0.1; z-index:0; pointer-events:none;" />` : ''}
+          <div style="position: relative; z-index: 1;">
+            <div style="text-align: center; margin-bottom: 18px;">
+              <img src="${logoSrc}" alt='Logo' style="max-width:290px; max-height:230px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
+            </div>
+            <h2 style="color: #1976d2; text-align: center; margin: 0 0 18px 0; font-size: 1.3rem;">Orçamento para ${formData.nome || '---'}</h2>
+            <div style="margin-bottom: 10px; text-align: center;">
+              <b>Vendedor:</b> ${vendedorNome || '---'}<br/>
+              <b>Telefone:</b> ${vendedorTelefone || '---'}<br/>
+              <b>Data:</b> ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}<br/>
+            </div>
+            <div style="margin-bottom: 10px; text-align: center;">
+              <b>Tabela de Preço:</b> ${tabela?.cidade_nome || ''} - ${tabela?.tipo_coparticipacao || ''} - ${tabela?.acomodacao_nome || ''} - ${tabela?.modalidade_nome || ''} (${tabela?.validade_inicio || ''} a ${tabela?.validade_fim || ''})
+            </div>
+            <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+              <table style="border: 2px solid #1976d2; border-radius: 8px; border-collapse: separate; border-spacing: 0; min-width: 180px; background: rgba(255,255,255,0.95);">
+                <thead>
+                  <tr style="background: #e3f2fd; color: #1976d2;">
+                    <th style="border: 1px solid #1976d2; padding: 6px 18px; text-align: center;">Idade</th>
+                    <th style="border: 1px solid #1976d2; padding: 6px 18px; text-align: center;">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${idades.map(idade => {
+                    let faixa = '';
+                    if (idade <= 18) faixa = 'valor_00_18';
+                    else if (idade <= 23) faixa = 'valor_19_23';
+                    else if (idade <= 28) faixa = 'valor_24_28';
+                    else if (idade <= 33) faixa = 'valor_29_33';
+                    else if (idade <= 38) faixa = 'valor_34_38';
+                    else if (idade <= 43) faixa = 'valor_39_43';
+                    else if (idade <= 48) faixa = 'valor_44_48';
+                    else if (idade <= 53) faixa = 'valor_49_53';
+                    else if (idade <= 58) faixa = 'valor_54_58';
+                    else faixa = 'valor_59_mais';
+                    const valor = tabela && tabela[faixa] ? Number(tabela[faixa]).toFixed(2).replace('.', ',') : '0,00';
+                    return `
+                      <tr>
+                        <td style=\"border: 1px solid #1976d2; padding: 6px 18px; text-align: center;\">${idade}</td>
+                        <td style=\"border: 1px solid #1976d2; padding: 6px 18px; text-align: center;\">R$ ${valor}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+            <div style="text-align: center; font-size: 1.1rem; margin-bottom: 10px;"><b>Total:</b> R$ ${valorTotal.toFixed(2).replace('.', ',')}</div>
+            ${copart}
           </div>
-          <h2 style="color: #1976d2; text-align: center; margin: 0 0 18px 0; font-size: 1.3rem;">Orçamento para ${formData.nome || '---'}</h2>
-          <div style="margin-bottom: 10px; text-align: center;">
-            <b>Vendedor:</b> ${vendedorNome || '---'}<br/>
-            <b>Telefone:</b> ${vendedorTelefone || '---'}<br/>
-            <b>Data:</b> ${new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}<br/>
-          </div>
-          <div style="margin-bottom: 10px; text-align: center;">
-            <b>Tabela de Preço:</b> ${tabela?.cidade_nome || ''} - ${tabela?.tipo_coparticipacao || ''} - ${tabela?.acomodacao_nome || ''} - ${tabela?.modalidade_nome || ''} (${tabela?.validade_inicio || ''} a ${tabela?.validade_fim || ''})
-          </div>
-          <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-            <table style="border: 2px solid #1976d2; border-radius: 8px; border-collapse: separate; border-spacing: 0; min-width: 180px;">
-              <thead>
-                <tr style="background: #e3f2fd; color: #1976d2;">
-                  <th style="border: 1px solid #1976d2; padding: 6px 18px; text-align: center;">Idade</th>
-                  <th style="border: 1px solid #1976d2; padding: 6px 18px; text-align: center;">Valor</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${idades.map(idade => {
-                  let faixa = '';
-                  if (idade <= 18) faixa = 'valor_00_18';
-                  else if (idade <= 23) faixa = 'valor_19_23';
-                  else if (idade <= 28) faixa = 'valor_24_28';
-                  else if (idade <= 33) faixa = 'valor_29_33';
-                  else if (idade <= 38) faixa = 'valor_34_38';
-                  else if (idade <= 43) faixa = 'valor_39_43';
-                  else if (idade <= 48) faixa = 'valor_44_48';
-                  else if (idade <= 53) faixa = 'valor_49_53';
-                  else if (idade <= 58) faixa = 'valor_54_58';
-                  else faixa = 'valor_59_mais';
-                  const valor = tabela && tabela[faixa] ? Number(tabela[faixa]).toFixed(2).replace('.', ',') : '0,00';
-                  return `
-                    <tr>
-                      <td style=\"border: 1px solid #1976d2; padding: 6px 18px; text-align: center;\">${idade}</td>
-                      <td style=\"border: 1px solid #1976d2; padding: 6px 18px; text-align: center;\">R$ ${valor}</td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-          <div style="text-align: center; font-size: 1.1rem; margin-bottom: 10px;"><b>Total:</b> R$ ${valorTotal.toFixed(2).replace('.', ',')}</div>
-          ${copart}
         </div>
       `;
 
