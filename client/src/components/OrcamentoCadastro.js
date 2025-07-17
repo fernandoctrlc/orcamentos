@@ -18,6 +18,7 @@ function OrcamentoCadastro() {
   const [faixas, setFaixas] = useState({});
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [logoOrcamento, setLogoOrcamento] = useState(null);
 
   useEffect(() => {
     carregarCidades();
@@ -34,6 +35,20 @@ function OrcamentoCadastro() {
   useEffect(() => {
     calcularTotal();
   }, [idades, faixas]);
+
+  // Buscar logo do orçamento do backend ao carregar a tela
+  useEffect(() => {
+    fetch('/api/logo-orcamento')
+      .then(res => res.json())
+      .then(data => {
+        if (data.path) {
+          setLogoOrcamento(`/api/uploads/${data.path.split('/').pop()}`);
+        } else {
+          setLogoOrcamento(null);
+        }
+      })
+      .catch(() => setLogoOrcamento(null));
+  }, []);
 
   const carregarCidades = async () => {
     try {
@@ -125,12 +140,7 @@ function OrcamentoCadastro() {
       `;
 
       // Buscar logo personalizada do orçamento
-      const orcamentoLogoPath = localStorage.getItem('orcamentoLogoPath');
-      let logoSrc = '/logov3.png';
-      if (orcamentoLogoPath) {
-        logoSrc = `/api/uploads/${orcamentoLogoPath.split('/').pop()}`;
-      }
-
+      let logoSrc = logoOrcamento || '/logov3.png';
       let tabela = tabelas.find(t => String(t.id) === String(formData.tabela_preco_id));
       // Se faltar algum campo de coparticipação, buscar na cidade correspondente
       if (tabela && (!('consultas_eletivas' in tabela))) {
@@ -170,7 +180,7 @@ function OrcamentoCadastro() {
       orcamentoDiv.innerHTML = `
         <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif;">
           <div style="text-align: center; margin-bottom: 18px;">
-            <img src="${logoSrc}" alt='Logo' style="max-width:130px; max-height:70px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
+            <img src="${logoSrc}" alt='Logo' style="max-width:160px; max-height:100px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
           </div>
           <h2 style="color: #1976d2; text-align: center; margin: 0 0 18px 0; font-size: 1.3rem;">Orçamento para ${formData.nome || '---'}</h2>
           <div style="margin-bottom: 10px; text-align: center;">
