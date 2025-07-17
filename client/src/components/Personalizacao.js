@@ -10,6 +10,7 @@ function Personalizacao() {
   const [orcamentoLogo, setOrcamentoLogo] = useState(null);
   const [orcamentoPreview, setOrcamentoPreview] = useState(null);
   const [logoOrcamento, setLogoOrcamento] = useState(null);
+  const [logoBoleto, setLogoBoleto] = useState(null);
 
   // Carregar dados do localStorage ao abrir a tela
   useEffect(() => {
@@ -45,6 +46,25 @@ function Personalizacao() {
       });
   }, []);
 
+  // Buscar logo do boleto do backend ao abrir a tela
+  useEffect(() => {
+    fetch('/api/logo-boleto')
+      .then(res => res.json())
+      .then(data => {
+        if (data.path) {
+          setLogoBoleto(`/api/uploads/${data.path.split('/').pop()}`);
+          setBoletoPreview(`/api/uploads/${data.path.split('/').pop()}`);
+        } else {
+          setLogoBoleto(null);
+          setBoletoPreview(null);
+        }
+      })
+      .catch(() => {
+        setLogoBoleto(null);
+        setBoletoPreview(null);
+      });
+  }, []);
+
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     setLogo(file);
@@ -64,20 +84,30 @@ function Personalizacao() {
     }
   };
 
-  const handleBoletoLogoChange = (e) => {
+  const handleBoletoLogoChange = async (e) => {
     const file = e.target.files[0];
     setBoletoLogo(file);
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result && typeof reader.result === 'string' && reader.result.startsWith('data:image/')) {
-          setBoletoPreview(reader.result);
+      const formData = new FormData();
+      formData.append('logo', file);
+      try {
+        const response = await fetch('/api/upload-boleto-logo', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (response.ok && data.path) {
+          const url = `/api/uploads/${data.path.split('/').pop()}`;
+          setLogoBoleto(url);
+          setBoletoPreview(url);
         } else {
           setBoletoPreview(null);
-          alert('Arquivo inválido. Por favor, selecione uma imagem válida (PNG, JPG, etc).');
+          alert('Falha ao enviar a imagem: ' + (data.error || 'Erro desconhecido.'));
         }
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        setBoletoPreview(null);
+        alert('Erro ao enviar a imagem para o servidor.');
+      }
     } else {
       setBoletoPreview(null);
     }
@@ -121,8 +151,9 @@ function Personalizacao() {
       alert('A logo não é uma imagem válida. Escolha outra.');
       return;
     }
-    if (boletoPreview && boletoPreview.startsWith('data:image/')) localStorage.setItem('boletoLogo', boletoPreview);
-    else if (boletoPreview) {
+    if (boletoPreview && boletoPreview.startsWith('/api/')) {
+      // já está salvo no backend, não precisa salvar nada aqui
+    } else if (boletoPreview) {
       alert('A logo do boleto não é uma imagem válida. Escolha outra.');
       return;
     }

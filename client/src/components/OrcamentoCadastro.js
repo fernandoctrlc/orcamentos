@@ -19,6 +19,7 @@ function OrcamentoCadastro() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [logoOrcamento, setLogoOrcamento] = useState(null);
+  const [logoBoleto, setLogoBoleto] = useState(null);
 
   useEffect(() => {
     carregarCidades();
@@ -48,6 +49,20 @@ function OrcamentoCadastro() {
         }
       })
       .catch(() => setLogoOrcamento(null));
+  }, []);
+
+  // Buscar logo do boleto do backend ao carregar a tela
+  useEffect(() => {
+    fetch('/api/logo-boleto')
+      .then(res => res.json())
+      .then(data => {
+        if (data.path) {
+          setLogoBoleto(`/api/uploads/${data.path.split('/').pop()}`);
+        } else {
+          setLogoBoleto(null);
+        }
+      })
+      .catch(() => setLogoBoleto(null));
   }, []);
 
   const carregarCidades = async () => {
@@ -125,9 +140,7 @@ function OrcamentoCadastro() {
 
   const gerarPngOrcamento = async () => {
     try {
-      // Buscar logo do boleto do localStorage
-      const boletoLogo = localStorage.getItem('boletoLogo');
-      // Criar elemento temporário para o orçamento
+      // Usar logo do boleto do backend como fundo
       const orcamentoDiv = document.createElement('div');
       orcamentoDiv.style.cssText = `
         position: fixed;
@@ -181,7 +194,7 @@ function OrcamentoCadastro() {
       }
       orcamentoDiv.innerHTML = `
         <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif; position: relative; overflow: hidden;">
-          ${boletoLogo ? `<img src='${boletoLogo}' alt='Fundo Boleto' style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; opacity:0.1; z-index:0; pointer-events:none;" />` : ''}
+          ${logoBoleto ? `<img src='${logoBoleto}' alt='Fundo Boleto' style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; opacity:0.1; z-index:0; pointer-events:none;" />` : ''}
           <div style="position: relative; z-index: 1;">
             <div style="text-align: center; margin-bottom: 18px;">
               <img src="${logoSrc}" alt='Logo' style="max-width:290px; max-height:230px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
