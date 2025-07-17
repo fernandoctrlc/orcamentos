@@ -52,8 +52,9 @@ function Personalizacao() {
       .then(res => res.json())
       .then(data => {
         if (data.path) {
-          setLogoBoleto(`/api/uploads/${data.path.split('/').pop()}`);
-          setBoletoPreview(`/api/uploads/${data.path.split('/').pop()}`);
+          const url = `/api/uploads/${data.path.split('/').pop()}`;
+          setLogoBoleto(url);
+          setBoletoPreview(url); // Garante preview ao abrir a tela
         } else {
           setLogoBoleto(null);
           setBoletoPreview(null);
