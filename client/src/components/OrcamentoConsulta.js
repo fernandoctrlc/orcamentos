@@ -18,7 +18,8 @@ function OrcamentoConsulta() {
   const carregarOrcamentos = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/orcamentos');
+      const corretorId = localStorage.getItem('corretorId');
+      const response = await fetch(`/api/orcamentos?corretor_id=${corretorId}`);
       const data = await response.json();
       if (response.ok) {
         setOrcamentos(data.orcamentos);
