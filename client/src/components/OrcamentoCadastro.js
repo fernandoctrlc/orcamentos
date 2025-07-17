@@ -170,7 +170,7 @@ function OrcamentoCadastro() {
       orcamentoDiv.innerHTML = `
         <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif;">
           <div style="text-align: center; margin-bottom: 18px;">
-            <img src="${logoSrc}" alt='Logo' style="max-width:120px; max-height:60px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
+            <img src="${logoSrc}" alt='Logo' style="max-width:130px; max-height:70px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
           </div>
           <h2 style="color: #1976d2; text-align: center; margin: 0 0 18px 0; font-size: 1.3rem;">Orçamento para ${formData.nome || '---'}</h2>
           <div style="margin-bottom: 10px; text-align: center;">
