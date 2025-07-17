@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ListaCidades.css';
 
-const ListaCidades = ({ onVoltar }) => {
+const ListaCidades = ({ onVoltar, onCopiarCidade }) => {
   const [cidades, setCidades] = useState([]);
   const [cidadesFiltradas, setCidadesFiltradas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -201,6 +201,9 @@ const ListaCidades = ({ onVoltar }) => {
                     </div>
                   </div>
                 </div>
+                <button className="btn-copiar" onClick={() => onCopiarCidade && onCopiarCidade(cidade)} title="Copiar cadastro desta cidade">
+                  📋 Copiar
+                </button>
               </div>
             </div>
           ))}

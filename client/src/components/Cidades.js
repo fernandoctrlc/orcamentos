@@ -133,8 +133,26 @@ function Cidades() {
     setMessage('');
   };
 
+  const handleCopiarCidade = (cidade) => {
+    setFormData({
+      nome: '', // Limpa para forçar novo nome
+      estado: cidade.estado,
+      codigo_ibge: '', // Limpa para forçar novo código
+      observacoes: cidade.observacoes || '',
+      consultas_eletivas: cidade.consultas_eletivas || '',
+      consultas_urgencias: cidade.consultas_urgencias || '',
+      exames_simples: cidade.exames_simples || '',
+      exames_complexos: cidade.exames_complexos || '',
+      terapias_especiais: cidade.terapias_especiais || '',
+      demais_terapias: cidade.demais_terapias || ''
+    });
+    setEditingId(null); // Garante que será um novo cadastro
+    setMostrarLista(false);
+    setMessage('Preencha o nome e o código IBGE para copiar este município.');
+  };
+
   if (mostrarLista) {
-    return <ListaCidades onVoltar={() => setMostrarLista(false)} />;
+    return <ListaCidades onVoltar={() => setMostrarLista(false)} onCopiarCidade={handleCopiarCidade} />;
   }
 
   return (
