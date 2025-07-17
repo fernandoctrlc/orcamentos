@@ -9,6 +9,7 @@ function Personalizacao() {
   const [boletoPreview, setBoletoPreview] = useState(null);
   const [orcamentoLogo, setOrcamentoLogo] = useState(null);
   const [orcamentoPreview, setOrcamentoPreview] = useState(null);
+  const [logoOrcamento, setLogoOrcamento] = useState(null);
 
   // Carregar dados do localStorage ao abrir a tela
   useEffect(() => {
@@ -23,8 +24,25 @@ function Personalizacao() {
       setTituloJanela(savedTitulo);
       document.title = savedTitulo;
     }
-    const savedOrcamentoLogoPath = localStorage.getItem('orcamentoLogoPath');
-    if (savedOrcamentoLogoPath) setOrcamentoPreview(`/api/${savedOrcamentoLogoPath.replace('uploads', 'uploads')}`);
+  }, []);
+
+  // Buscar logo do orçamento do backend ao abrir a tela
+  useEffect(() => {
+    fetch('/api/logo-orcamento')
+      .then(res => res.json())
+      .then(data => {
+        if (data.path) {
+          setLogoOrcamento(`/api/uploads/${data.path.split('/').pop()}`);
+          setOrcamentoPreview(`/api/uploads/${data.path.split('/').pop()}`);
+        } else {
+          setLogoOrcamento(null);
+          setOrcamentoPreview(null);
+        }
+      })
+      .catch(() => {
+        setLogoOrcamento(null);
+        setOrcamentoPreview(null);
+      });
   }, []);
 
   const handleLogoChange = (e) => {
@@ -79,10 +97,10 @@ function Personalizacao() {
         });
         const data = await response.json();
         if (response.ok && data.path) {
-          // Salva o caminho no localStorage
-          localStorage.setItem('orcamentoLogoPath', data.path);
-          // Exibe preview usando a URL do backend
-          setOrcamentoPreview(`/api/${data.path.replace('uploads', 'uploads')}`);
+          // Atualiza preview e logoOrcamento com a nova logo
+          const url = `/api/uploads/${data.path.split('/').pop()}`;
+          setLogoOrcamento(url);
+          setOrcamentoPreview(url);
         } else {
           setOrcamentoPreview(null);
           alert('Falha ao enviar a imagem: ' + (data.error || 'Erro desconhecido.'));
@@ -109,7 +127,7 @@ function Personalizacao() {
       return;
     }
     if (orcamentoPreview && orcamentoPreview.startsWith('/api/')) {
-      // já está salvo o caminho, não precisa salvar nada aqui
+      // já está salvo no backend, não precisa salvar nada aqui
     } else if (orcamentoPreview) {
       alert('A logo do orçamento não é uma imagem válida. Escolha outra.');
       return;
