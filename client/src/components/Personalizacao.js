@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 
 function Personalizacao() {
   const [logo, setLogo] = useState(null);
+  const [boletoLogo, setBoletoLogo] = useState(null);
   const [nomeApp, setNomeApp] = useState('');
   const [tituloJanela, setTituloJanela] = useState('');
   const [preview, setPreview] = useState(null);
+  const [boletoPreview, setBoletoPreview] = useState(null);
 
   // Carregar dados do localStorage ao abrir a tela
   useEffect(() => {
     const savedLogo = localStorage.getItem('appLogo');
+    const savedBoletoLogo = localStorage.getItem('boletoLogo');
     const savedNome = localStorage.getItem('appNome');
     const savedTitulo = localStorage.getItem('appTitulo');
     if (savedLogo) setPreview(savedLogo);
+    if (savedBoletoLogo) setBoletoPreview(savedBoletoLogo);
     if (savedNome) setNomeApp(savedNome);
     if (savedTitulo) {
       setTituloJanela(savedTitulo);
@@ -38,11 +42,35 @@ function Personalizacao() {
     }
   };
 
+  const handleBoletoLogoChange = (e) => {
+    const file = e.target.files[0];
+    setBoletoLogo(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (reader.result && typeof reader.result === 'string' && reader.result.startsWith('data:image/')) {
+          setBoletoPreview(reader.result);
+        } else {
+          setBoletoPreview(null);
+          alert('Arquivo inválido. Por favor, selecione uma imagem válida (PNG, JPG, etc).');
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setBoletoPreview(null);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (preview && preview.startsWith('data:image/')) localStorage.setItem('appLogo', preview);
     else if (preview) {
       alert('A logo não é uma imagem válida. Escolha outra.');
+      return;
+    }
+    if (boletoPreview && boletoPreview.startsWith('data:image/')) localStorage.setItem('boletoLogo', boletoPreview);
+    else if (boletoPreview) {
+      alert('A logo do boleto não é uma imagem válida. Escolha outra.');
       return;
     }
     localStorage.setItem('appNome', nomeApp);
@@ -59,6 +87,11 @@ function Personalizacao() {
           <label style={{ fontWeight: 500 }}>Logo do Aplicativo:</label><br />
           <input type="file" accept="image/*" onChange={handleLogoChange} />
           {preview && <div style={{ marginTop: 10 }}><img src={preview} alt="Preview" style={{ maxWidth: 180, maxHeight: 80, borderRadius: 8, border: '1px solid #eee' }} /></div>}
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontWeight: 500 }}>Logo do Boleto:</label><br />
+          <input type="file" accept="image/*" onChange={handleBoletoLogoChange} />
+          {boletoPreview && <div style={{ marginTop: 10 }}><img src={boletoPreview} alt="Preview Boleto" style={{ maxWidth: 180, maxHeight: 80, borderRadius: 8, border: '1px solid #eee' }} /></div>}
         </div>
         <div style={{ marginBottom: 20 }}>
           <label style={{ fontWeight: 500 }}>Nome do Aplicativo:</label><br />
