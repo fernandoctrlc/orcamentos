@@ -10,6 +10,10 @@ function Menu() {
   const corretorNome = localStorage.getItem('corretorNome');
   const corretorTelefone = localStorage.getItem('corretorTelefone');
 
+  // Personalização
+  const appLogo = localStorage.getItem('appLogo');
+  const appNome = localStorage.getItem('appNome') || 'Cotador V3 Corretora';
+
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = '/login';
@@ -76,9 +80,12 @@ function Menu() {
     <nav className="menu">
       <div className="menu-header">
         <div className="menu-logo">
-          <img src="/logov3.png" alt="Logo" style={{maxWidth:120, maxHeight:60, borderRadius:8, background:'#fff'}} />
+          {appLogo
+            ? <img src={appLogo} alt="Logo" style={{maxWidth:120, maxHeight:60, borderRadius:8, background:'#fff'}} className="logo-personalizada" />
+            : <img src="/logov3.png" alt="Logo" style={{maxWidth:120, maxHeight:60, borderRadius:8, background:'#fff'}} className="logo-padrao" />
+          }
         </div>
-        <h1>Cotador V3 Corretora</h1>
+        <h1>{appNome}</h1>
         {corretorNome && (
           <div className="corretor-logado">
             <span>👤 {corretorNome}</span>

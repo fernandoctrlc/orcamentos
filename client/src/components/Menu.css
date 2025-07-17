@@ -24,7 +24,13 @@
 .menu-logo img {
   max-width: 120px;
   height: auto;
-  filter: brightness(0) invert(1);
+}
+
+.menu-logo img.logo-padrao {
+  filter: none;
+}
+.menu-logo img.logo-personalizada {
+  filter: none;
 }
 
 .menu-header h1 {

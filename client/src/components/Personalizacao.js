@@ -24,7 +24,14 @@ function Personalizacao() {
     setLogo(file);
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
+      reader.onloadend = () => {
+        if (reader.result && typeof reader.result === 'string' && reader.result.startsWith('data:image/')) {
+          setPreview(reader.result);
+        } else {
+          setPreview(null);
+          alert('Arquivo inválido. Por favor, selecione uma imagem válida (PNG, JPG, etc).');
+        }
+      };
       reader.readAsDataURL(file);
     } else {
       setPreview(null);
@@ -33,7 +40,11 @@ function Personalizacao() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (preview) localStorage.setItem('appLogo', preview);
+    if (preview && preview.startsWith('data:image/')) localStorage.setItem('appLogo', preview);
+    else if (preview) {
+      alert('A logo não é uma imagem válida. Escolha outra.');
+      return;
+    }
     localStorage.setItem('appNome', nomeApp);
     localStorage.setItem('appTitulo', tituloJanela);
     document.title = tituloJanela;

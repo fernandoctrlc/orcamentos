@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './App.css';
 import Menu from './components/Menu';
 import CadastroCorretor from './components/CadastroCorretor';
@@ -21,9 +21,19 @@ function PrivateRoute({ children }) {
   return isAuth ? children : <Navigate to="/login" replace />;
 }
 
+function TitleUpdater() {
+  const location = useLocation();
+  React.useEffect(() => {
+    const titulo = localStorage.getItem('appTitulo') || 'Cotador V3 Corretora';
+    document.title = titulo;
+  }, [location]);
+  return null;
+}
+
 function App() {
   return (
     <Router>
+      <TitleUpdater />
       <div className="App">
         <Routes>
           <Route path="/login" element={<Login onLogin={() => window.location.href = '/'} />} />
