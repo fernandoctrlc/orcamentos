@@ -179,7 +179,7 @@ function Personalizacao() {
           {preview && <div style={{ marginTop: 10 }}><img src={preview} alt="Preview" style={{ maxWidth: 180, maxHeight: 80, borderRadius: 8, border: '1px solid #eee' }} /></div>}
         </div>
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontWeight: 500 }}>Logo do Boleto:</label><br />
+          <label style={{ fontWeight: 500 }}>Logotipo de Fundo:</label><br />
           <input type="file" accept="image/*" onChange={handleBoletoLogoChange} />
           {boletoPreview && <div style={{ marginTop: 10 }}><img src={boletoPreview} alt="Preview Boleto" style={{ maxWidth: 180, maxHeight: 80, borderRadius: 8, border: '1px solid #eee' }} /></div>}
         </div>
