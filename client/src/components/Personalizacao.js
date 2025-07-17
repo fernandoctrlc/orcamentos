@@ -7,6 +7,8 @@ function Personalizacao() {
   const [tituloJanela, setTituloJanela] = useState('');
   const [preview, setPreview] = useState(null);
   const [boletoPreview, setBoletoPreview] = useState(null);
+  const [orcamentoLogo, setOrcamentoLogo] = useState(null);
+  const [orcamentoPreview, setOrcamentoPreview] = useState(null);
 
   // Carregar dados do localStorage ao abrir a tela
   useEffect(() => {
@@ -21,6 +23,8 @@ function Personalizacao() {
       setTituloJanela(savedTitulo);
       document.title = savedTitulo;
     }
+    const savedOrcamentoLogoPath = localStorage.getItem('orcamentoLogoPath');
+    if (savedOrcamentoLogoPath) setOrcamentoPreview(`/api/${savedOrcamentoLogoPath.replace('uploads', 'uploads')}`);
   }, []);
 
   const handleLogoChange = (e) => {
@@ -61,6 +65,37 @@ function Personalizacao() {
     }
   };
 
+  const handleOrcamentoLogoChange = async (e) => {
+    const file = e.target.files[0];
+    setOrcamentoLogo(file);
+    if (file) {
+      // Envia para o backend
+      const formData = new FormData();
+      formData.append('logo', file);
+      try {
+        const response = await fetch('/api/upload-logo', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await response.json();
+        if (response.ok && data.path) {
+          // Salva o caminho no localStorage
+          localStorage.setItem('orcamentoLogoPath', data.path);
+          // Exibe preview usando a URL do backend
+          setOrcamentoPreview(`/api/${data.path.replace('uploads', 'uploads')}`);
+        } else {
+          setOrcamentoPreview(null);
+          alert('Falha ao enviar a imagem: ' + (data.error || 'Erro desconhecido.'));
+        }
+      } catch (err) {
+        setOrcamentoPreview(null);
+        alert('Erro ao enviar a imagem para o servidor.');
+      }
+    } else {
+      setOrcamentoPreview(null);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (preview && preview.startsWith('data:image/')) localStorage.setItem('appLogo', preview);
@@ -71,6 +106,12 @@ function Personalizacao() {
     if (boletoPreview && boletoPreview.startsWith('data:image/')) localStorage.setItem('boletoLogo', boletoPreview);
     else if (boletoPreview) {
       alert('A logo do boleto não é uma imagem válida. Escolha outra.');
+      return;
+    }
+    if (orcamentoPreview && orcamentoPreview.startsWith('/api/')) {
+      // já está salvo o caminho, não precisa salvar nada aqui
+    } else if (orcamentoPreview) {
+      alert('A logo do orçamento não é uma imagem válida. Escolha outra.');
       return;
     }
     localStorage.setItem('appNome', nomeApp);
@@ -92,6 +133,11 @@ function Personalizacao() {
           <label style={{ fontWeight: 500 }}>Logo do Boleto:</label><br />
           <input type="file" accept="image/*" onChange={handleBoletoLogoChange} />
           {boletoPreview && <div style={{ marginTop: 10 }}><img src={boletoPreview} alt="Preview Boleto" style={{ maxWidth: 180, maxHeight: 80, borderRadius: 8, border: '1px solid #eee' }} /></div>}
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontWeight: 500 }}>Logo do Orçamento:</label><br />
+          <input type="file" accept="image/*" onChange={handleOrcamentoLogoChange} />
+          {orcamentoPreview && <div style={{ marginTop: 10 }}><img src={orcamentoPreview} alt="Preview Orçamento" style={{ maxWidth: 180, maxHeight: 80, borderRadius: 8, border: '1px solid #eee' }} /></div>}
         </div>
         <div style={{ marginBottom: 20 }}>
           <label style={{ fontWeight: 500 }}>Nome do Aplicativo:</label><br />

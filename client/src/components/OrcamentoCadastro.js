@@ -125,8 +125,11 @@ function OrcamentoCadastro() {
       `;
 
       // Buscar logo personalizada do orçamento
-      const orcamentoLogo = localStorage.getItem('orcamentoLogo');
-      const logoSrc = orcamentoLogo && orcamentoLogo.startsWith('data:image/') ? orcamentoLogo : '/logov3.png';
+      const orcamentoLogoPath = localStorage.getItem('orcamentoLogoPath');
+      let logoSrc = '/logov3.png';
+      if (orcamentoLogoPath) {
+        logoSrc = `/api/uploads/${orcamentoLogoPath.split('/').pop()}`;
+      }
 
       let tabela = tabelas.find(t => String(t.id) === String(formData.tabela_preco_id));
       // Se faltar algum campo de coparticipação, buscar na cidade correspondente

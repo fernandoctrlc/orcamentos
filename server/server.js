@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 
 const app = express();
 const PORT = 3001;
@@ -14,6 +15,8 @@ app.use(bodyParser.json());
 
 // Servir arquivos estáticos do build do React
 app.use(express.static(path.join(__dirname, '../client/build')));
+// Servir arquivos estáticos da pasta uploads
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Configuração do banco de dados SQLite
 const dbPath = path.join(__dirname, 'corretores.db');
@@ -120,6 +123,34 @@ db.serialize(() => {
     FOREIGN KEY (tabela_preco_id) REFERENCES precos(id),
     FOREIGN KEY (corretor_id) REFERENCES corretores(id)
   )`);
+});
+
+// Configuração do multer para salvar arquivos em 'uploads/'
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Salva com timestamp para evitar conflitos
+    const ext = path.extname(file.originalname);
+    const filename = 'logo_' + Date.now() + ext;
+    cb(null, filename);
+  }
+});
+const upload = multer({ storage: storage });
+
+// Rota para upload da logo personalizada
+app.post('/api/upload-logo', upload.single('logo'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+  }
+  // Caminho relativo para uso posterior
+  const relativePath = path.relative(__dirname, req.file.path);
+  res.json({ message: 'Logo enviada com sucesso!', path: relativePath });
 });
 
 // Rota de teste
