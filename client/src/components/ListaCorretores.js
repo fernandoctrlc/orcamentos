@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ListaCorretores.css';
 
-const ListaCorretores = ({ onVoltar }) => {
+const ListaCorretores = ({ onVoltar, onEditar }) => {
   const [corretores, setCorretores] = useState([]);
   const [corretoresFiltrados, setCorretoresFiltrados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +89,23 @@ const ListaCorretores = ({ onVoltar }) => {
     setBusca('');
     setFiltroTipo('todos');
     setFiltroStatus('todos');
+  };
+
+  // Função para excluir corretor
+  const handleDelete = async (id) => {
+    if (!window.confirm('Tem certeza que deseja excluir este corretor?')) return;
+    try {
+      const response = await fetch(`/api/corretores/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+      if (response.ok) {
+        alert('Corretor excluído com sucesso!');
+        carregarCorretores();
+      } else {
+        alert(data.error || 'Erro ao excluir corretor.');
+      }
+    } catch (error) {
+      alert('Erro ao excluir corretor.');
+    }
   };
 
   if (loading) {
@@ -205,6 +222,10 @@ const ListaCorretores = ({ onVoltar }) => {
                     {corretor.tipoUsuario === 'admin' ? '👨‍💼 Administrador' : '👤 Usuário'}
                   </span>
                 </p>
+                <div className="corretor-actions">
+                  <button className="btn-edit" title="Editar" onClick={() => onEditar && onEditar(corretor)}>✏️ Editar</button>
+                  <button className="btn-delete" title="Excluir" onClick={() => handleDelete(corretor.id)}>🗑️ Excluir</button>
+                </div>
               </div>
             </div>
           ))}

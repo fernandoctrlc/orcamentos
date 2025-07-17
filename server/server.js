@@ -180,6 +180,21 @@ app.get('/api/corretores/:id', (req, res) => {
   });
 });
 
+// Rota para deletar corretor
+app.delete('/api/corretores/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = 'DELETE FROM corretores WHERE id = ?';
+  db.run(sql, [id], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao deletar corretor' });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Corretor não encontrado' });
+    }
+    res.json({ message: 'Corretor deletado com sucesso!' });
+  });
+});
+
 // ===== ROTAS PARA ACOMODAÇÕES =====
 // Rota para cadastrar acomodação
 app.post('/api/acomodacoes', (req, res) => {

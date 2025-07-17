@@ -13,7 +13,7 @@ const CadastroCorretor = () => {
     dataDesligamento: '',
     tipoUsuario: 'usuario' // Padrão: usuário
   });
-
+  const [editingId, setEditingId] = useState(null);
   const [mostrarLista, setMostrarLista] = useState(false);
 
   const handleChange = (e) => {
@@ -22,42 +22,82 @@ const CadastroCorretor = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     try {
-      const response = await fetch('/api/corretores', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Corretor cadastrado com sucesso!');
-        // Limpar formulário
-        setForm({
-          nome: '',
-          email: '',
-          telefone: '',
-          cpf: '',
-          senha: '',
-          dataCadastro: new Date().toISOString().split('T')[0],
-          dataDesligamento: '',
-          tipoUsuario: 'usuario'
+      let response, data;
+      if (editingId) {
+        response = await fetch(`/api/corretores/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form)
         });
+        data = await response.json();
+        if (response.ok) {
+          alert('Corretor atualizado com sucesso!');
+          setEditingId(null);
+        } else {
+          alert(`Erro: ${data.error}`);
+        }
       } else {
-        alert(`Erro: ${data.error}`);
+        response = await fetch('/api/corretores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form)
+        });
+        data = await response.json();
+        if (response.ok) {
+          alert('Corretor cadastrado com sucesso!');
+        } else {
+          alert(`Erro: ${data.error}`);
+        }
       }
+      // Limpar formulário
+      setForm({
+        nome: '',
+        email: '',
+        telefone: '',
+        cpf: '',
+        senha: '',
+        dataCadastro: new Date().toISOString().split('T')[0],
+        dataDesligamento: '',
+        tipoUsuario: 'usuario'
+      });
     } catch (error) {
-      console.error('Erro ao cadastrar:', error);
-      alert('Erro ao cadastrar corretor. Tente novamente.');
+      console.error('Erro ao cadastrar/atualizar:', error);
+      alert('Erro ao cadastrar/atualizar corretor. Tente novamente.');
     }
   };
 
+  const handleEditar = (corretor) => {
+    setForm({
+      nome: corretor.nome,
+      email: corretor.email,
+      telefone: corretor.telefone,
+      cpf: corretor.cpf,
+      senha: '', // senha não é retornada por segurança
+      dataCadastro: corretor.dataCadastro || new Date().toISOString().split('T')[0],
+      dataDesligamento: corretor.dataDesligamento || '',
+      tipoUsuario: corretor.tipoUsuario || 'usuario'
+    });
+    setEditingId(corretor.id);
+    setMostrarLista(false);
+  };
+
+  const handleCancelarEdicao = () => {
+    setEditingId(null);
+    setForm({
+      nome: '',
+      email: '',
+      telefone: '',
+      cpf: '',
+      senha: '',
+      dataCadastro: new Date().toISOString().split('T')[0],
+      dataDesligamento: '',
+      tipoUsuario: 'usuario'
+    });
+  };
+
   if (mostrarLista) {
-    return <ListaCorretores onVoltar={() => setMostrarLista(false)} />;
+    return <ListaCorretores onVoltar={() => setMostrarLista(false)} onEditar={handleEditar} />;
   }
 
   return (
@@ -92,7 +132,12 @@ const CadastroCorretor = () => {
           </select>
         </label>
         <div className="form-buttons">
-          <button type="submit">Cadastrar</button>
+          <button type="submit">{editingId ? 'Atualizar' : 'Cadastrar'}</button>
+          {editingId && (
+            <button type="button" className="secondary" onClick={handleCancelarEdicao}>
+              Cancelar Edição
+            </button>
+          )}
           <button type="button" className="secondary" onClick={() => setMostrarLista(true)}>
             🔍 Consultar no Banco
           </button>
