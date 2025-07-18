@@ -200,7 +200,7 @@ function OrcamentoCadastro() {
             </div>
             <h2 style="color: #1976d2; text-align: center; margin: 0 0 18px 0; font-size: 1.3rem;">Orçamento para ${formData.nome || '---'}</h2>
             <div style="margin-bottom: 10px; text-align: center; position:relative; min-height:70px;">
-              ${logoBoleto ? `<img src='${logoBoleto}' alt='Fundo Boleto' style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); max-width:90%; max-height:90%; width:auto; height:auto; object-fit:contain; opacity:0.13; z-index:0; pointer-events:none;" />` : ''}
+              ${logoBoleto ? `<img src='${logoBoleto}' alt='Fundo Boleto' style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); max-width:110%; max-height:110%; width:auto; height:auto; object-fit:contain; opacity:0.13; z-index:0; pointer-events:none;" />` : ''}
               <div style="position:relative; z-index:1;">
                 <b>Vendedor:</b> ${vendedorNome || '---'}<br/>
                 <b>Telefone:</b> ${vendedorTelefone || '---'}<br/>
