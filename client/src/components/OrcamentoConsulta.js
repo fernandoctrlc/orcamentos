@@ -196,7 +196,7 @@ function OrcamentoConsulta() {
     }
   };
 
-  const tipoUsuario = localStorage.getItem('tipoUsuario') || 'usuario';
+  const tipoUsuario = (localStorage.getItem('tipoUsuario') || 'usuario').toLowerCase();
 
   return (
     <div className="orcamento-consulta-container">
@@ -247,7 +247,7 @@ function OrcamentoConsulta() {
               <button className="btn-reimprimir" onClick={gerarPng} disabled={gerandoPng}>
                 {gerandoPng ? 'Gerando PNG...' : 'Gerar PNG'}
               </button>
-              {tipoUsuario === 'admin' && (
+              {tipoUsuario === 'administrador' && (
                 <button className="btn-excluir" style={{marginLeft:12, background:'#e53935', color:'#fff', border:'none', borderRadius:6, padding:'12px 24px', fontSize:16, fontWeight:500, cursor:'pointer'}} onClick={() => excluirOrcamento(orcamentoSelecionado.id)}>
                   Excluir
                 </button>
