@@ -202,7 +202,7 @@ function OrcamentoCadastro() {
         `;
       }
       orcamentoDiv.innerHTML = `
-        <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif; position: relative; overflow: hidden;">
+        <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif; position: relative; overflow: hidden; min-height: 720px;">
           <div style="position: relative; z-index: 1;">
             <div style="text-align: center; margin-bottom: 18px;">
               <img src="${logoSrc}" alt='Logo' style="max-width:290px; max-height:230px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
@@ -253,8 +253,8 @@ function OrcamentoCadastro() {
             </div>
             <div style="text-align: center; font-size: 1.1rem; margin-bottom: 10px;"><b>Total:</b> R$ ${valorTotal.toFixed(2).replace('.', ',')}</div>
             ${copart}
-            ${mensagemRodape ? `<div style='margin-top: 8px; margin-bottom: 0px; text-align:center; color:#444; font-size:0.9rem; opacity:0.85;'>${mensagemRodape}</div>` : ''}
           </div>
+          ${mensagemRodape ? `<div style='position:absolute; bottom:0; left:0; width:100%; text-align:center; color:#444; font-size:0.9rem; opacity:0.85; padding-bottom:4px;'>${mensagemRodape}</div>` : ''}
         </div>
       `;
 
