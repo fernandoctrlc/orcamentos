@@ -20,6 +20,7 @@ function OrcamentoCadastro() {
   const [loading, setLoading] = useState(false);
   const [logoOrcamento, setLogoOrcamento] = useState(null);
   const [logoBoleto, setLogoBoleto] = useState(null);
+  const [mensagemRodape, setMensagemRodape] = useState('');
 
   useEffect(() => {
     carregarCidades();
@@ -63,6 +64,14 @@ function OrcamentoCadastro() {
         }
       })
       .catch(() => setLogoBoleto(null));
+  }, []);
+
+  // Buscar mensagem de rodapé ao carregar a tela
+  useEffect(() => {
+    fetch('/api/mensagem-rodape-orcamento')
+      .then(res => res.json())
+      .then(data => setMensagemRodape(data.mensagem || ''))
+      .catch(() => setMensagemRodape(''));
   }, []);
 
   const carregarCidades = async () => {
@@ -244,6 +253,7 @@ function OrcamentoCadastro() {
             </div>
             <div style="text-align: center; font-size: 1.1rem; margin-bottom: 10px;"><b>Total:</b> R$ ${valorTotal.toFixed(2).replace('.', ',')}</div>
             ${copart}
+            ${mensagemRodape ? `<div style='margin-top: 24px; margin-bottom: 2px; text-align:center; color:#444; font-size:1.05rem; opacity:0.85;'>${mensagemRodape}</div>` : ''}
           </div>
         </div>
       `;

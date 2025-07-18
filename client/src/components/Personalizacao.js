@@ -11,6 +11,8 @@ function Personalizacao() {
   const [orcamentoPreview, setOrcamentoPreview] = useState(null);
   const [logoOrcamento, setLogoOrcamento] = useState(null);
   const [logoBoleto, setLogoBoleto] = useState(null);
+  const [mensagemRodape, setMensagemRodape] = useState('');
+  const [msgStatus, setMsgStatus] = useState('');
 
   // Carregar dados do localStorage ao abrir a tela
   useEffect(() => {
@@ -64,6 +66,14 @@ function Personalizacao() {
         setLogoBoleto(null);
         setBoletoPreview(null);
       });
+  }, []);
+
+  // Buscar mensagem de rodapé ao abrir a tela
+  useEffect(() => {
+    fetch('/api/mensagem-rodape-orcamento')
+      .then(res => res.json())
+      .then(data => setMensagemRodape(data.mensagem || ''))
+      .catch(() => setMensagemRodape(''));
   }, []);
 
   const handleLogoChange = (e) => {
@@ -145,7 +155,7 @@ function Personalizacao() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (preview && preview.startsWith('data:image/')) localStorage.setItem('appLogo', preview);
     else if (preview) {
@@ -168,6 +178,23 @@ function Personalizacao() {
     localStorage.setItem('appTitulo', tituloJanela);
     document.title = tituloJanela;
     alert('Personalização salva com sucesso!');
+
+    // Salvar mensagem de rodapé
+    try {
+      const resp = await fetch('/api/mensagem-rodape-orcamento', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensagem: mensagemRodape })
+      });
+      if (resp.ok) {
+        setMsgStatus('Mensagem de rodapé salva!');
+        setTimeout(() => setMsgStatus(''), 2000);
+      } else {
+        setMsgStatus('Erro ao salvar mensagem de rodapé.');
+      }
+    } catch {
+      setMsgStatus('Erro ao salvar mensagem de rodapé.');
+    }
   };
 
   return (
@@ -188,6 +215,11 @@ function Personalizacao() {
           <label style={{ fontWeight: 500 }}>Logo do Orçamento:</label><br />
           <input type="file" accept="image/*" onChange={handleOrcamentoLogoChange} />
           {orcamentoPreview && <div style={{ marginTop: 10 }}><img src={orcamentoPreview} alt="Preview Orçamento" style={{ maxWidth: 180, maxHeight: 80, borderRadius: 8, border: '1px solid #eee' }} /></div>}
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontWeight: 500 }}>Mensagem roda orçamento:</label><br />
+          <textarea value={mensagemRodape} onChange={e => setMensagemRodape(e.target.value)} placeholder="Digite uma mensagem para aparecer no rodapé do orçamento" style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #ccc', minHeight: 48 }} />
+          {msgStatus && <div style={{ color: '#1976d2', marginTop: 4 }}>{msgStatus}</div>}
         </div>
         <div style={{ marginBottom: 20 }}>
           <label style={{ fontWeight: 500 }}>Nome do Aplicativo:</label><br />

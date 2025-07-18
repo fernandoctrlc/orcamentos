@@ -128,7 +128,8 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS configuracoes (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     orcamento_logo_path TEXT,
-    boleto_logo_path TEXT
+    boleto_logo_path TEXT,
+    mensagem_rodape_orcamento TEXT
   )`);
 });
 
@@ -1015,6 +1016,30 @@ app.get('/api/logo-boleto', (req, res) => {
       return res.status(500).json({ error: 'Erro ao buscar logo do boleto' });
     }
     res.json({ path: row && row.boleto_logo_path ? row.boleto_logo_path : null });
+  });
+});
+
+// Rota para buscar a mensagem de rodapé do orçamento
+app.get('/api/mensagem-rodape-orcamento', (req, res) => {
+  db.get('SELECT mensagem_rodape_orcamento FROM configuracoes WHERE id = 1', (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao buscar mensagem de rodapé' });
+    }
+    res.json({ mensagem: row && row.mensagem_rodape_orcamento ? row.mensagem_rodape_orcamento : '' });
+  });
+});
+
+// Rota para atualizar a mensagem de rodapé do orçamento
+app.put('/api/mensagem-rodape-orcamento', (req, res) => {
+  const { mensagem } = req.body;
+  if (typeof mensagem !== 'string') {
+    return res.status(400).json({ error: 'Mensagem inválida' });
+  }
+  db.run('UPDATE configuracoes SET mensagem_rodape_orcamento = ? WHERE id = 1', [mensagem], function(err) {
+    if (err) {
+      return res.status(500).json({ error: 'Erro ao salvar mensagem de rodapé' });
+    }
+    res.json({ message: 'Mensagem de rodapé atualizada com sucesso!' });
   });
 });
 
