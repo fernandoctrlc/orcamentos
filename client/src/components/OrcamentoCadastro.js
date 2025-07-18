@@ -253,7 +253,7 @@ function OrcamentoCadastro() {
             </div>
             <div style="text-align: center; font-size: 1.1rem; margin-bottom: 10px;"><b>Total:</b> R$ ${valorTotal.toFixed(2).replace('.', ',')}</div>
             ${copart}
-            ${mensagemRodape ? `<div style='margin-top: 24px; margin-bottom: 2px; text-align:center; color:#444; font-size:0.65rem; opacity:0.85;'>${mensagemRodape}</div>` : ''}
+            ${mensagemRodape ? `<div style='margin-top: 8px; margin-bottom: 0px; text-align:center; color:#444; font-size:0.9rem; opacity:0.85;'>${mensagemRodape}</div>` : ''}
           </div>
         </div>
       `;
