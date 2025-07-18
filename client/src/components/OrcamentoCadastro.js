@@ -194,7 +194,7 @@ function OrcamentoCadastro() {
       }
       orcamentoDiv.innerHTML = `
         <div style="max-width: 520px; margin: 0 auto; border: 2px solid #2196f3; border-radius: 16px; background: #fff; padding: 32px 24px 24px 24px; font-family: Arial, sans-serif; position: relative; overflow: hidden;">
-          ${logoBoleto ? `<img src='${logoBoleto}' alt='Fundo Boleto' style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; opacity:0.1; z-index:0; pointer-events:none;" />` : ''}
+          ${logoBoleto ? `<img src='${logoBoleto}' alt='Fundo Boleto' style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); max-width:90%; max-height:90%; width:auto; height:auto; object-fit:contain; opacity:0.1; z-index:0; pointer-events:none;" />` : ''}
           <div style="position: relative; z-index: 1;">
             <div style="text-align: center; margin-bottom: 18px;">
               <img src="${logoSrc}" alt='Logo' style="max-width:290px; max-height:230px; margin-bottom:10px; border-radius:8px; display:block; margin-left:auto; margin-right:auto;" />
