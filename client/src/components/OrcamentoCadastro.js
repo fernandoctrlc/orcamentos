@@ -8,6 +8,7 @@ function OrcamentoCadastro() {
   const [formData, setFormData] = useState({
     cidade_id: '',
     tipo_documento: 'CPF',
+    modalidade_id: '',
     tabela_preco_id: '',
     nome: '',
     telefone: '',
@@ -21,18 +22,20 @@ function OrcamentoCadastro() {
   const [logoOrcamento, setLogoOrcamento] = useState(null);
   const [logoBoleto, setLogoBoleto] = useState(null);
   const [mensagemRodape, setMensagemRodape] = useState('');
+  const [modalidades, setModalidades] = useState([]);
 
   useEffect(() => {
     carregarCidades();
+    carregarModalidades();
   }, []);
 
   useEffect(() => {
-    if (formData.cidade_id && formData.tipo_documento) {
-      carregarTabelas(formData.cidade_id, formData.tipo_documento);
+    if (formData.cidade_id && formData.tipo_documento && formData.modalidade_id) {
+      carregarTabelas(formData.cidade_id, formData.tipo_documento, formData.modalidade_id);
     } else {
       setTabelas([]);
     }
-  }, [formData.cidade_id, formData.tipo_documento]);
+  }, [formData.cidade_id, formData.tipo_documento, formData.modalidade_id]);
 
   useEffect(() => {
     calcularTotal();
@@ -82,13 +85,21 @@ function OrcamentoCadastro() {
     } catch {}
   };
 
-  const carregarTabelas = async (cidadeId, tipoDocumento) => {
-    if (!cidadeId || !tipoDocumento) {
+  const carregarModalidades = async () => {
+    try {
+      const response = await fetch('/api/modalidades');
+      const data = await response.json();
+      if (response.ok) setModalidades(data.modalidades);
+    } catch {}
+  };
+
+  const carregarTabelas = async (cidadeId, tipoDocumento, modalidadeId) => {
+    if (!cidadeId || !tipoDocumento || !modalidadeId) {
       setTabelas([]);
       return;
     }
     try {
-      const url = `/api/precos?cidade_id=${cidadeId}&tipo_documento=${tipoDocumento}`;
+      const url = `/api/precos?cidade_id=${cidadeId}&tipo_documento=${tipoDocumento}&modalidade_id=${modalidadeId}`;
       const response = await fetch(url);
       const data = await response.json();
       if (response.ok) {
@@ -309,7 +320,7 @@ function OrcamentoCadastro() {
         setTimeout(() => {
           gerarPngOrcamento();
         }, 500);
-        setFormData({ cidade_id: '', tipo_documento: 'CPF', tabela_preco_id: '', nome: '', telefone: '', idade: '' });
+        setFormData({ cidade_id: '', tipo_documento: 'CPF', modalidade_id: '', tabela_preco_id: '', nome: '', telefone: '', idade: '' });
         setIdades([]);
         setFaixas({});
         setValorTotal(0);
@@ -345,21 +356,30 @@ function OrcamentoCadastro() {
               <option value="CNPJ">CNPJ</option>
             </select>
           </div>
+          <div className="form-group">
+            <label htmlFor="modalidade_id">Modalidade:</label>
+            <select id="modalidade_id" value={formData.modalidade_id} onChange={e => setFormData({ ...formData, modalidade_id: e.target.value })} required>
+              <option value="">Selecione</option>
+              {modalidades.map(modalidade => (
+                <option key={modalidade.id} value={modalidade.id}>{modalidade.nome}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="tabela_preco_id">Tabela de Preço:</label>
-            <select id="tabela_preco_id" value={formData.tabela_preco_id} onChange={handleTabelaChange} required disabled={!formData.cidade_id || !formData.tipo_documento}>
+            <select id="tabela_preco_id" value={formData.tabela_preco_id} onChange={handleTabelaChange} required disabled={!formData.cidade_id || !formData.tipo_documento || !formData.modalidade_id}>
               <option value="">
-                {!formData.cidade_id || !formData.tipo_documento 
-                  ? 'Selecione cidade e tipo de documento primeiro' 
+                {!formData.cidade_id || !formData.tipo_documento || !formData.modalidade_id
+                  ? 'Selecione cidade, tipo de documento e modalidade primeiro' 
                   : tabelas.length === 0 
-                    ? 'Nenhuma tabela disponível para esta cidade e tipo de documento' 
+                    ? 'Nenhuma tabela disponível para esta cidade, tipo de documento e modalidade' 
                     : 'Selecione'}
               </option>
               {tabelas.map(t => (
                 <option key={t.id} value={t.id}>
-                  {t.operadora_nome} - {t.tipo_coparticipacao} - {t.acomodacao_nome} - {t.modalidade_nome} ({t.validade_inicio} a {t.validade_fim})
+                  {t.operadora_nome} - {t.acomodacao_nome} - {t.modalidade_nome} ({t.validade_inicio} a {t.validade_fim})
                 </option>
               ))}
             </select>
